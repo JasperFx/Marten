@@ -31,13 +31,13 @@ namespace Marten.Linq.Parsing
 
             protected override Expression VisitMemberInit(MemberInitExpression node)
             {
-                _parent.CurrentStatement.ToSelectTransform(node, _serializer);
+                _parent.CurrentStatement.ToSelectTransform(node, _parent.Model.MainFromClause, _serializer);
                 return null;
             }
 
             protected override Expression VisitNew(NewExpression node)
             {
-                _parent.CurrentStatement.ToSelectTransform(node, _serializer);
+                _parent.CurrentStatement.ToSelectTransform(node, _parent.Model.MainFromClause, _serializer);
                 return null;
             }
 

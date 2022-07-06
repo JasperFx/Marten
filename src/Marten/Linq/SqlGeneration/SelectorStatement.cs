@@ -9,6 +9,7 @@ using Marten.Linq.QueryHandlers;
 using Marten.Linq.Selectors;
 using Weasel.Postgresql;
 using Marten.Util;
+using Remotion.Linq.Clauses;
 
 namespace Marten.Linq.SqlGeneration
 {
@@ -161,9 +162,12 @@ namespace Marten.Linq.SqlGeneration
             ReturnDefaultWhenEmpty = true;
         }
 
-        public void ToSelectTransform(Expression selectExpression, ISerializer serializer)
+        public void ToSelectTransform(
+            Expression selectExpression,
+            MainFromClause mainFromClause,
+            ISerializer serializer)
         {
-            var builder = new SelectTransformBuilder(selectExpression, Fields, serializer);
+            var builder = new SelectTransformBuilder(selectExpression, Fields, mainFromClause, serializer);
             var transformField = builder.SelectedFieldExpression;
 
             SelectClause = typeof(DataSelectClause<>).CloseAndBuildAs<ISelectClause>(SelectClause.FromObject, transformField, selectExpression.Type);

@@ -6,17 +6,27 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Baseline;
 using Marten.Linq.Fields;
+using Remotion.Linq;
+using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Marten.Linq.Parsing
 {
     internal class SelectTransformBuilder : RelinqExpressionVisitor
     {
+        private readonly MainFromClause _mainFromClause;
         private TargetObject _target;
         private SelectedField _currentField;
 
-        public SelectTransformBuilder(Expression clause, IFieldMapping fields, ISerializer serializer)
+        public SelectTransformBuilder(
+            Expression clause,
+            IFieldMapping fields,
+            MainFromClause mainFromClause,
+            ISerializer serializer)
         {
+            _mainFromClause = mainFromClause;
+
             // ReSharper disable once VirtualMemberCallInConstructor
             Visit(@clause);
             SelectedFieldExpression = _target.ToSelectField(fields, serializer);
@@ -55,6 +65,55 @@ namespace Marten.Linq.Parsing
             return base.VisitMemberBinding(node);
         }
 
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        {
+            var autoCorrelate = true;
+
+            var subQueryFromExpression = expression.QueryModel.MainFromClause.FromExpression;
+            if (subQueryFromExpression is not MemberExpression { Expression: QuerySourceReferenceExpression querySourceReferenceExpression })
+            {
+                throw new NotSupportedException(
+                    "subQueryFromExpression should be a MemberExpression which contains a QuerySourceReferenceExpression.");
+            }
+
+            if (querySourceReferenceExpression.ReferencedQuerySource != _mainFromClause)
+            {
+                autoCorrelate = false;
+            }
+
+            if (querySourceReferenceExpression.ReferencedQuerySource
+                is not MainFromClause { FromExpression: ConstantExpression { Value: IMartenLinqQueryable martenLinqQueryable } })
+            {
+                throw new NotSupportedException(
+                    "ReferencedQuerySource should be a MainFromClause referencing a constant MartenQueryable instance");
+            }
+
+            Expression newSubQueryExpression = null;
+
+            var correlatedQueryModelBuilder = new QueryModelBuilder();
+            correlatedQueryModelBuilder.AddClause(_mainFromClause);
+            correlatedQueryModelBuilder.AddClause(new SelectClause(subQueryFromExpression));
+            // TODO: Where clause to match the subquery id with the outer query id
+
+            foreach (var bodyClause in expression.QueryModel.BodyClauses)
+            {
+                correlatedQueryModelBuilder.AddClause(bodyClause);
+            }
+
+            foreach (var resultOperator in expression.QueryModel.ResultOperators)
+            {
+                correlatedQueryModelBuilder.AddResultOperator(resultOperator);
+            }
+
+            // TODO LinqHandlerBuilder needs to be refactored to extract out the Sql building logic
+            // and make it operate on a ready-parsed Model directly.
+            var subQueryBuilder = new LinqHandlerBuilder(
+                martenLinqQueryable.MartenProvider,
+                martenLinqQueryable.Session,
+                newSubQueryExpression);
+
+            return base.VisitSubQuery(expression);
+        }
 
         public class TargetObject
         {
