@@ -98,9 +98,9 @@ public class Bug_PR_1412_spaces_in_table_name_cause_schema_patch_to_fail: BugInt
     {
         protected override IEnumerable<ISchemaObject> SchemaObjects()
         {
-            var table = new Table(new DbObjectName(SchemaConstants.DefaultSchema,"test_space_after"));
+            var table = new Table(new PostgresqlObjectName(SchemaConstants.DefaultSchema, "test_space_after"));
             table.AddColumn("space_after ", "int");
-            return new List<ISchemaObject> {table};
+            return new List<ISchemaObject> { table };
         }
     }
 
@@ -108,9 +108,9 @@ public class Bug_PR_1412_spaces_in_table_name_cause_schema_patch_to_fail: BugInt
     {
         protected override IEnumerable<ISchemaObject> SchemaObjects()
         {
-            var table = new Table(new DbObjectName(SchemaConstants.DefaultSchema,"test_space_before"));
+            var table = new Table(new PostgresqlObjectName(SchemaConstants.DefaultSchema, "test_space_before"));
             table.AddColumn(" space_before", "int");
-            return new List<ISchemaObject> {table};
+            return new List<ISchemaObject> { table };
         }
     }
 
@@ -118,9 +118,9 @@ public class Bug_PR_1412_spaces_in_table_name_cause_schema_patch_to_fail: BugInt
     {
         protected override IEnumerable<ISchemaObject> SchemaObjects()
         {
-            var table = new Table(new DbObjectName(SchemaConstants.DefaultSchema,"test_space_in"));
+            var table = new Table(new PostgresqlObjectName(SchemaConstants.DefaultSchema, "test_space_in"));
             table.AddColumn("space inname", "int");
-            return new List<ISchemaObject> {table};
+            return new List<ISchemaObject> { table };
         }
     }
 }

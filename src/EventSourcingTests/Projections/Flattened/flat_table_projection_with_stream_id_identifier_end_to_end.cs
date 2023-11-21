@@ -10,6 +10,7 @@ using Marten.Testing.Harness;
 using Npgsql;
 using Shouldly;
 using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Tables;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,7 +18,7 @@ using CommandExtensions = Weasel.Postgresql.CommandExtensions;
 
 namespace EventSourcingTests.Projections.Flattened;
 
-public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOffConfigurationsContext
+public class flat_table_projection_with_stream_id_identifier_end_to_end: OneOffConfigurationsContext
 {
     private readonly ITestOutputHelper _output;
 
@@ -38,7 +39,7 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
         await using var conn = theStore.Storage.Database.CreateConnection();
         await conn.OpenAsync();
 
-        var table = await new Table(new DbObjectName(SchemaName, "values")).FetchExistingAsync(conn);
+        var table = await new Table(new PostgresqlObjectName(SchemaName, "values")).FetchExistingAsync(conn);
 
         table.PrimaryKeyColumns.Single().ShouldBe("id");
         table.Columns.Select(x => x.Name).OrderBy(x => x)
@@ -73,7 +74,8 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
         await using var conn = theStore.Storage.Database.CreateConnection();
         await conn.OpenAsync();
 
-        var all = await conn.CreateCommand($"select * from {SchemaName}.values where id = :id")
+        var all = await Weasel.Core.CommandExtensions
+            .CreateCommand(conn, $"select * from {SchemaName}.values where id = :id")
             .With("id", streamId)
             .FetchListAsync(readData);
 
@@ -97,10 +99,7 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
     public async Task set_values_on_new_row()
     {
         var streamId = Guid.NewGuid();
-        var valuesSet = new ValuesSet
-        {
-            A = 3, B = 4, C = 5, D = 6
-        };
+        var valuesSet = new ValuesSet { A = 3, B = 4, C = 5, D = 6 };
         theSession.Events.Append(streamId, valuesSet);
 
         await theSession.SaveChangesAsync();
@@ -124,10 +123,7 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
 
         await theSession.SaveChangesAsync();
 
-        var valuesSet = new ValuesSet
-        {
-            A = 3, B = 4, C = 5, D = 6
-        };
+        var valuesSet = new ValuesSet { A = 3, B = 4, C = 5, D = 6 };
 
         theSession.Events.Append(streamId, valuesSet);
 
@@ -152,10 +148,7 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
 
         await theSession.SaveChangesAsync();
 
-        var valuesAdded = new ValuesAdded
-        {
-            A = 3, B = 4, C = 5, D = 6
-        };
+        var valuesAdded = new ValuesAdded { A = 3, B = 4, C = 5, D = 6 };
 
         theSession.Events.Append(streamId, valuesAdded);
 
@@ -180,10 +173,7 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
 
         await theSession.SaveChangesAsync();
 
-        var valuesAdded = new ValuesSubtracted
-        {
-            A = 3, B = 4, C = 5, D = 6
-        };
+        var valuesAdded = new ValuesSubtracted { A = 3, B = 4, C = 5, D = 6 };
 
         theSession.Events.Append(streamId, valuesAdded);
 
@@ -195,7 +185,6 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
         data.B.ShouldBe(6);
         data.C.ShouldBe(5);
         data.D.ShouldBe(4);
-
     }
 
     [Fact]
@@ -211,13 +200,11 @@ public class flat_table_projection_with_stream_id_identifier_end_to_end : OneOff
 
         await using var conn = new NpgsqlConnection(ConnectionSource.ConnectionString);
         await conn.OpenAsync();
-        var count = await conn
-            .CreateCommand($"select count(*) from {SchemaName}.values where id = :id")
+        var count = await Weasel.Core.CommandExtensions
+            .CreateCommand(conn, $"select count(*) from {SchemaName}.values where id = :id")
             .With("id", streamId)
             .ExecuteScalarAsync();
 
         count.As<long>().ShouldBe(0);
-
-
     }
 }

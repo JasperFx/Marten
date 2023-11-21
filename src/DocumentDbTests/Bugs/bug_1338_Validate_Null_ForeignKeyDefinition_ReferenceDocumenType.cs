@@ -17,12 +17,13 @@ public class Bug_1338_Validate_Null_ForeignKeyDefinition_ReferenceDocumenType: B
     [Fact]
     public void StorageFeatures_AllActiveFeatures_Should_Not_Throw_With_ExternalForeignKeyDefinitions()
     {
-        theStore.StorageFeatures.AllActiveFeatures(theStore.Tenancy.Default.Database).All(x => x != null).ShouldBeTrue();
+        theStore.StorageFeatures.AllActiveFeatures(theStore.Tenancy.Default.Database).All(x => x != null)
+            .ShouldBeTrue();
     }
 
     public async Task InitializeAsync()
     {
-        var table = new Table(new DbObjectName(SchemaName, "external_table"));
+        var table = new Table(new PostgresqlObjectName(SchemaName, "external_table"));
         table.AddColumn("id", "integer").AsPrimaryKey();
 
         await using var dbConn = new NpgsqlConnection(ConnectionSource.ConnectionString);
@@ -40,7 +41,6 @@ public class Bug_1338_Validate_Null_ForeignKeyDefinition_ReferenceDocumenType: B
         }, false);
 
         await theStore.Advanced.Clean.DeleteDocumentsByTypeAsync(typeof(ClassWithExternalForeignKey));
-
     }
 
     public Task DisposeAsync()
@@ -60,10 +60,9 @@ public class Bug_1338_Validate_Null_ForeignKeyDefinition_ReferenceDocumenType: B
         //  and finally, the function that we want to regression test"
         //  UnitOfWork.GetTypeDependencies(ClassWithExternalForeignKey)
         await using var session = theStore.LightweightSession();
-        session.Insert(new ClassWithExternalForeignKey {Id = 1, ForeignId = 1});
+        session.Insert(new ClassWithExternalForeignKey { Id = 1, ForeignId = 1 });
         await session.SaveChangesAsync();
     }
-
 }
 
 public class ClassWithExternalForeignKey

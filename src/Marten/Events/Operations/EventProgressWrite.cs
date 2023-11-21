@@ -19,7 +19,7 @@ internal class EventProgressWrite: IStorageOperation
 
     public EventProgressWrite(EventGraph events, string key, long number)
     {
-        _sproc = new DbObjectName(events.DatabaseSchemaName, "mt_mark_event_progression");
+        _sproc = new PostgresqlObjectName(events.DatabaseSchemaName, "mt_mark_event_progression");
         _key = key;
         _number = number;
     }

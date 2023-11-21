@@ -21,7 +21,7 @@ internal class StreamsTable: Table
 {
     public const string TableName = "mt_streams";
 
-    public StreamsTable(EventGraph events): base(new DbObjectName(events.DatabaseSchemaName, TableName))
+    public StreamsTable(EventGraph events): base(new PostgresqlObjectName(events.DatabaseSchemaName, TableName))
     {
         var idColumn = events.StreamIdentity == StreamIdentity.AsGuid
             ? new StreamTableColumn("id", x => x.Id)

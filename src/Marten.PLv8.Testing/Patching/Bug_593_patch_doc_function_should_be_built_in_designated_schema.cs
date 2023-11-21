@@ -22,8 +22,7 @@ public class Bug_593_patch_doc_function_should_be_built_in_designated_schema: Bu
 
         await theStore.Storage.ApplyAllConfiguredChangesToDatabaseAsync();
 
-        var expected = new DbObjectName("other", "mt_transform_patch_doc");
+        var expected = new PostgresqlObjectName("other", "mt_transform_patch_doc");
         (await theStore.Tenancy.Default.Database.Functions()).Contains(expected).ShouldBeTrue();
     }
-
 }

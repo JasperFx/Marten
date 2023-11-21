@@ -13,7 +13,7 @@ namespace Marten.Events.Schema;
 
 internal class EventsTable: Table
 {
-    public EventsTable(EventGraph events): base(new DbObjectName(events.DatabaseSchemaName, "mt_events"))
+    public EventsTable(EventGraph events): base(new PostgresqlObjectName(events.DatabaseSchemaName, "mt_events"))
     {
         AddColumn(new EventTableColumn("seq_id", x => x.Sequence)).AsPrimaryKey();
         AddColumn(new EventTableColumn("id", x => x.Id)).NotNull();
@@ -40,7 +40,7 @@ internal class EventsTable: Table
             {
                 ColumnNames = new[] { "stream_id", TenantIdColumn.Name },
                 LinkedNames = new[] { "id", TenantIdColumn.Name },
-                LinkedTable = new DbObjectName(events.DatabaseSchemaName, "mt_streams")
+                LinkedTable = new PostgresqlObjectName(events.DatabaseSchemaName, "mt_streams")
             });
 
             Indexes.Add(new IndexDefinition("pk_mt_events_stream_and_version")
@@ -54,7 +54,7 @@ internal class EventsTable: Table
             {
                 ColumnNames = new[] { "stream_id" },
                 LinkedNames = new[] { "id" },
-                LinkedTable = new DbObjectName(events.DatabaseSchemaName, "mt_streams"),
+                LinkedTable = new PostgresqlObjectName(events.DatabaseSchemaName, "mt_streams"),
                 OnDelete = CascadeAction.Cascade
             });
 

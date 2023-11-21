@@ -42,7 +42,7 @@
         <PackageReference Include="Npgsql.Json.NET" Version="7.0.6"/>
         <PackageReference Include="Remotion.Linq" Version="2.2.0"/>
         <PackageReference Include="System.Threading.Tasks.Dataflow" Version="7.0.0"/>
-        <PackageReference Include="Weasel.Postgresql" Version="6.1.2"/>
+        <PackageReference Include="Weasel.Postgresql" Version="6.2.0"/>
         <PackageReference Include="System.Text.Json" Version="7.0.3"/>
     </ItemGroup>
 

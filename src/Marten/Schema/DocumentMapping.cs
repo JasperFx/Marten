@@ -146,7 +146,8 @@ public class DocumentMapping: FieldMapping, IDocumentMapping, IDocumentType
 
     public Type DocumentType { get; }
 
-    public virtual DbObjectName TableName => new(DatabaseSchemaName, $"{SchemaConstants.TablePrefix}{_alias}");
+    public virtual DbObjectName TableName =>
+        new PostgresqlObjectName(DatabaseSchemaName, $"{SchemaConstants.TablePrefix}{_alias}");
 
     public DocumentMetadataCollection Metadata { get; }
 
@@ -158,10 +159,17 @@ public class DocumentMapping: FieldMapping, IDocumentMapping, IDocumentType
 
     public SubClasses SubClasses { get; }
 
-    public DbObjectName UpsertFunction => new(DatabaseSchemaName, $"{SchemaConstants.UpsertPrefix}{_alias}");
-    public DbObjectName InsertFunction => new(DatabaseSchemaName, $"{SchemaConstants.InsertPrefix}{_alias}");
-    public DbObjectName UpdateFunction => new(DatabaseSchemaName, $"{SchemaConstants.UpdatePrefix}{_alias}");
-    public DbObjectName OverwriteFunction => new(DatabaseSchemaName, $"{SchemaConstants.OverwritePrefix}{_alias}");
+    public DbObjectName UpsertFunction =>
+        new PostgresqlObjectName(DatabaseSchemaName, $"{SchemaConstants.UpsertPrefix}{_alias}");
+
+    public DbObjectName InsertFunction =>
+        new PostgresqlObjectName(DatabaseSchemaName, $"{SchemaConstants.InsertPrefix}{_alias}");
+
+    public DbObjectName UpdateFunction =>
+        new PostgresqlObjectName(DatabaseSchemaName, $"{SchemaConstants.UpdatePrefix}{_alias}");
+
+    public DbObjectName OverwriteFunction =>
+        new PostgresqlObjectName(DatabaseSchemaName, $"{SchemaConstants.OverwritePrefix}{_alias}");
 
     public string DatabaseSchemaName
     {

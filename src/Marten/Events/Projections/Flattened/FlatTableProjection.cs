@@ -6,13 +6,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JasperFx.CodeGeneration;
 using Marten.Events.Daemon;
-using Marten.Linq.Parsing;
 using Marten.Storage;
 using Weasel.Core;
 using Weasel.Postgresql.Tables;
 using JasperFx.Core.Reflection;
+using Weasel.Postgresql;
 using FindMembers = Marten.Linq.Parsing.FindMembers;
 
 namespace Marten.Events.Projections.Flattened;
@@ -26,7 +25,7 @@ public partial class FlatTableProjection: GeneratedProjection, IProjectionSchema
     private readonly string _inlineTypeName;
 
     public FlatTableProjection(string tableName, SchemaNameSource schemaNameSource): this(
-        new DbObjectName("public", tableName), schemaNameSource)
+        new PostgresqlObjectName("public", tableName), schemaNameSource)
     {
     }
 

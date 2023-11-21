@@ -5,6 +5,7 @@ using Marten.Linq.Fields;
 using Marten.Linq.Parsing;
 using Marten.Schema;
 using Weasel.Core;
+using Weasel.Postgresql;
 
 namespace Marten.Events;
 
@@ -16,7 +17,7 @@ public class EventQueryMapping: DocumentMapping
 
         TenancyStyle = storeOptions.Events.TenancyStyle;
 
-        TableName = new DbObjectName(DatabaseSchemaName, "mt_events");
+        TableName = new PostgresqlObjectName(DatabaseSchemaName, "mt_events");
 
         duplicateField(x => x.Sequence, "seq_id");
         if (storeOptions.Events.StreamIdentity == StreamIdentity.AsGuid)

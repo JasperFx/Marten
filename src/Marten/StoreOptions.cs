@@ -682,19 +682,26 @@ public class AdvancedOptions: IReadOnlyAdvancedOptions
         _storeOptions.SerializationConfigurations.Add(configure);
     }
 
-
     /// <summary>
     ///     Global default parameters for Hilo sequences within the DocumentStore. Can be overridden per document
     ///     type as well
     /// </summary>
     public HiloSettings HiloSequenceDefaults { get; } = new();
 
-
     /// <summary>
     ///     Allows you to modify how the DDL for document tables and upsert functions is
     ///     written
     /// </summary>
     public PostgresqlMigrator Migrator { get; } = new();
+
+    /// <summary>
+    ///     Decides if case sensitive object names should be used while applying changes to database.
+    /// </summary>
+    public bool UseCaseSensitiveQualifiedNamesWhenApplyingChanges
+    {
+        get => PostgresqlProvider.Instance.UseCaseSensitiveQualifiedNames;
+        set => PostgresqlProvider.Instance.UseCaseSensitiveQualifiedNames = value;
+    }
 
     /// <summary>
     ///     Decides if `timestamp without time zone` database type should be used for `DateTime` DuplicatedField.

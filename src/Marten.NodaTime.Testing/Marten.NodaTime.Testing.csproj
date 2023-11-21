@@ -17,7 +17,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="xunit" Version="2.5.3"/>
+        <PackageReference Include="xunit" Version="2.6.1"/>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="MarkdownSnippets.MsBuild" Version="25.1.0">

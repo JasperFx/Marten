@@ -30,7 +30,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="xunit" Version="2.5.3"/>
+        <PackageReference Include="xunit" Version="2.6.1"/>
         <PackageReference Include="NSubstitute" Version="5.1.0"/>
         <PackageReference Include="Shouldly" Version="4.2.1"/>
     </ItemGroup>

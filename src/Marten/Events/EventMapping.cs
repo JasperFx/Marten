@@ -89,7 +89,7 @@ public abstract class EventMapping: IDocumentMapping, IEventType
 
     Type IDocumentMapping.IdType => typeof(Guid);
 
-    public DbObjectName TableName => new(_parent.DatabaseSchemaName, "mt_events");
+    public DbObjectName TableName => new PostgresqlObjectName(_parent.DatabaseSchemaName, "mt_events");
 
     Type IEventType.EventType => DocumentType;
 

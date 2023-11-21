@@ -6,6 +6,7 @@ using System.IO;
 using Marten.Storage;
 using Weasel.Core;
 using Weasel.Core.Migrations;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Tables;
 
 namespace Marten.Schema.Identity.Sequences;
@@ -33,7 +34,7 @@ public class SequenceFactory: ISequences
     {
         get
         {
-            var table = new Table(new DbObjectName(_options.DatabaseSchemaName, "mt_hilo"));
+            var table = new Table(new PostgresqlObjectName(_options.DatabaseSchemaName, "mt_hilo"));
             table.AddColumn<string>("entity_name").AsPrimaryKey();
             table.AddColumn<long>("hi_value").DefaultValue(0L);
 

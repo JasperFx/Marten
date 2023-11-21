@@ -17,7 +17,7 @@ public class MatterId: FeatureSchemaBase
     private readonly int _startFrom;
     private readonly string _schema;
 
-    public MatterId(StoreOptions options, int startFrom) : base(nameof(MatterId), options.Advanced.Migrator)
+    public MatterId(StoreOptions options, int startFrom): base(nameof(MatterId), options.Advanced.Migrator)
     {
         _startFrom = startFrom;
         _schema = options.DatabaseSchemaName;
@@ -26,11 +26,12 @@ public class MatterId: FeatureSchemaBase
     protected override IEnumerable<ISchemaObject> schemaObjects()
     {
         // We return a sequence that starts from the value provided in the ctor
-        yield return new Sequence(new DbObjectName(_schema, $"mt_{nameof(MatterId).ToLowerInvariant()}"), _startFrom);
+        yield return new Sequence(new PostgresqlObjectName(_schema, $"mt_{nameof(MatterId).ToLowerInvariant()}"),
+            _startFrom);
     }
 }
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L17-L36' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-setup' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L15-L37' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-setup' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 This sequence yielding customization will be plugged into Marten via the store configuration
@@ -40,7 +41,7 @@ This sequence yielding customization will be plugged into Marten via the store c
 ```cs
 storeOptions.Storage.Add(new MatterId(storeOptions, 10000));
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L43-L45' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-storesetup-1' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L44-L48' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-storesetup-1' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 and then executed against the database (generating & executing the DDL statements that create the required database objects):
@@ -50,7 +51,7 @@ and then executed against the database (generating & executing the DDL statement
 ```cs
 await theStore.Storage.ApplyAllConfiguredChangesToDatabaseAsync();
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L48-L50' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-storesetup-2' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L51-L55' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-storesetup-2' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 We introduce a few types with `Guid` identifiers, whom we reference to our end users by numbers, encapsulated in the `Matter` field:
@@ -61,17 +62,20 @@ We introduce a few types with `Guid` identifiers, whom we reference to our end u
 public class Contract
 {
     public Guid Id { get; set; }
+
     public int Matter { get; set; }
     // Other fields...
 }
+
 public class Inquiry
 {
     public Guid Id { get; set; }
+
     public int Matter { get; set; }
     // Other fields...
 }
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L79-L92' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-setup-types' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L77-L95' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-setup-types' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Now, when creating and persisting such types, we first query the database for a new and unique running number. While we generate (or if wanted, let Marten generate) non-human-readable, system-internal identifiers for the created instances, we assign to them the newly generated and unique human-readable identifier:
@@ -85,24 +89,16 @@ await using var session = theStore.LightweightSession();
 // Generate a new, unique identifier
 var nextMatter = session.NextInSequence(matter);
 
-var contract = new Contract
-{
-    Id = Guid.NewGuid(),
-    Matter = nextMatter
-};
+var contract = new Contract { Id = Guid.NewGuid(), Matter = nextMatter };
 
-var inquiry = new Inquiry
-{
-    Id = Guid.NewGuid(),
-    Matter = nextMatter
-};
+var inquiry = new Inquiry { Id = Guid.NewGuid(), Matter = nextMatter };
 
 session.Store(contract);
 session.Store(inquiry);
 
 await session.SaveChangesAsync();
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L52-L76' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-querymatter' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L57-L74' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-querymatter' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Lastly, we have an extension method (used above) as a shorthand for generating the SQL statement for a sequence value query:
@@ -119,5 +115,5 @@ public static class SessionExtensions
     }
 }
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L95-L104' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-setup-extensions' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/ScenarioUsingSequenceForUniqueId.cs#L98-L109' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_scenario-usingsequenceforuniqueid-setup-extensions' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->

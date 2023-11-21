@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using JasperFx.Core;
 using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Functions;
 
 namespace Marten.PLv8.Transforms;
@@ -16,7 +17,7 @@ public class TransformFunction: Function
     public readonly IList<string> OtherArgs = new List<string>();
 
     public TransformFunction(StoreOptions options, string name, string body)
-        : base(new DbObjectName(options.DatabaseSchemaName, "mt_transform_" + name.Replace(".", "_")))
+        : base(new PostgresqlObjectName(options.DatabaseSchemaName, "mt_transform_" + name.Replace(".", "_")))
     {
         Name = name;
         Body = body;
@@ -73,7 +74,8 @@ $$ LANGUAGE plv8 IMMUTABLE STRICT;
         return new TransformFunction(options, name, body);
     }
 
-    public static TransformFunction ForResource(StoreOptions options, Assembly assembly, string resource, string name = null)
+    public static TransformFunction ForResource(StoreOptions options, Assembly assembly, string resource,
+        string name = null)
     {
         using var stream = assembly.GetManifestResourceStream(resource);
         if (stream == null)

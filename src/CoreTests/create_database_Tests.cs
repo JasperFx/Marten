@@ -13,7 +13,7 @@ using Xunit.Sdk;
 namespace CoreTests;
 
 [Collection("multi-tenancy")]
-public class create_database_Tests : IDisposable
+public class create_database_Tests: IDisposable
 {
     [Fact]
     public async Task can_create_new_database_when_one_does_not_exist_for_default_tenant_with_DatabaseGenerator()
@@ -22,10 +22,10 @@ public class create_database_Tests : IDisposable
 
         TryDropDb(dbName);
 
-        using (var store1 = DocumentStore.For(_ =>
-               {
-                   _.Connection(dbToCreateConnectionString);
-               }))
+        await using (var store1 = DocumentStore.For(_ =>
+                     {
+                         _.Connection(dbToCreateConnectionString);
+                     }))
         {
             await Should.ThrowAsync<PostgresException>(async () =>
             {
@@ -35,10 +35,12 @@ public class create_database_Tests : IDisposable
 
         var dbCreated = false;
 
-        using var store = DocumentStore.For(storeOptions =>
+        await using var store = DocumentStore.For(storeOptions =>
         {
             storeOptions.Connection(dbToCreateConnectionString);
+
             #region sample_marten_create_database
+
             storeOptions.CreateDatabasesForTenants(c =>
             {
                 // Specify a db to which to connect in case database needs to be created.
@@ -54,11 +56,13 @@ public class create_database_Tests : IDisposable
                         dbCreated = true;
                     });
             });
+
             #endregion
         });
         // That should be done with Hosted Service, but let's test it also here
         var databaseGenerator = new DatabaseGenerator();
-        await databaseGenerator.CreateDatabasesAsync(store.Tenancy, store.Options.CreateDatabases).ConfigureAwait(false);
+        await databaseGenerator.CreateDatabasesAsync(store.Tenancy, store.Options.CreateDatabases)
+            .ConfigureAwait(false);
 
         await store.Advanced.Clean.CompletelyRemoveAllAsync();
 
@@ -86,7 +90,6 @@ public class create_database_Tests : IDisposable
                     .ConnectionLimit(-1)
                     .OnDatabaseCreated(___ => dbCreated = true);
             });
-
         });
 
         store.Advanced.Clean.CompletelyRemoveAll();
@@ -142,6 +145,7 @@ public class create_database_Tests : IDisposable
         {
             return false;
         }
+
         return true;
     }
 

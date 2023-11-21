@@ -149,8 +149,10 @@ public class adding_custom_schema_objects: OneOffConfigurationsContext
         });
 
         #region sample_manual_single_tenancy_apply_changes
+
         var tenant = await theStore.Tenancy.GetTenantAsync(tenantId);
         await tenant.Database.ApplyAllConfiguredChangesToDatabaseAsync();
+
         #endregion
 
         await using var sessionNext = theStore.QuerySession(tenantId);
@@ -194,7 +196,7 @@ public class adding_custom_schema_objects: OneOffConfigurationsContext
             opts.RegisterDocumentType<Target>();
 
             // Create a user defined function to act as a ternary operator similar to SQL Server
-            var function = new Function(new DbObjectName("public", "iif"), @"
+            var function = new Function(new PostgresqlObjectName("public", "iif"), @"
 create or replace function iif(
     condition boolean,       -- if condition
     true_result anyelement,  -- then

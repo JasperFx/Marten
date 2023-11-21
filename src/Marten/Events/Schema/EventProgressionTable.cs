@@ -1,11 +1,11 @@
-using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Tables;
 
 namespace Marten.Events.Schema;
 
 internal class EventProgressionTable: Table
 {
-    public EventProgressionTable(string schemaName): base(new DbObjectName(schemaName, "mt_event_progression"))
+    public EventProgressionTable(string schemaName): base(new PostgresqlObjectName(schemaName, "mt_event_progression"))
     {
         AddColumn<string>("name").AsPrimaryKey();
         AddColumn("last_seq_id", "bigint").AllowNulls();

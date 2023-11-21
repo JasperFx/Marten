@@ -10,13 +10,15 @@ using Marten.Testing.Harness;
 using Npgsql;
 using Shouldly;
 using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Tables;
 using Xunit;
 using Xunit.Abstractions;
+using CommandExtensions = Weasel.Core.CommandExtensions;
 
 namespace EventSourcingTests.Projections.Flattened;
 
-public class flat_table_projection_with_event_member_identifier_end_to_end : OneOffConfigurationsContext
+public class flat_table_projection_with_event_member_identifier_end_to_end: OneOffConfigurationsContext
 {
     private readonly ITestOutputHelper _output;
 
@@ -38,7 +40,7 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
         await using var conn = theStore.Storage.Database.CreateConnection();
         await conn.OpenAsync();
 
-        var table = await new Table(new DbObjectName(SchemaName, "member_values")).FetchExistingAsync(conn);
+        var table = await new Table(new PostgresqlObjectName(SchemaName, "member_values")).FetchExistingAsync(conn);
 
         table.PrimaryKeyColumns.Single().ShouldBe("name");
         table.Columns.Select(x => x.Name).OrderBy(x => x)
@@ -77,7 +79,8 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
         await using var conn = theStore.Storage.Database.CreateConnection();
         await conn.OpenAsync();
 
-        var all = await conn.CreateCommand($"select * from {SchemaName}.member_values where name = :id")
+        var all = await CommandExtensions
+            .CreateCommand(conn, $"select * from {SchemaName}.member_values where name = :id")
             .With("id", name)
             .FetchListAsync(readData);
 
@@ -91,7 +94,11 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
         var streamId = Guid.NewGuid().ToString();
         var valuesSet = new ValuesSet
         {
-            A = 3, B = 4, C = 5, D = 6, Name = "red"
+            A = 3,
+            B = 4,
+            C = 5,
+            D = 6,
+            Name = "red"
         };
         theSession.Events.Append(streamId, valuesSet);
 
@@ -114,13 +121,28 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
         var streamId = Guid.NewGuid().ToString();
         var guid = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;
-        theSession.Events.Append(streamId, new ValuesSet { A = 1, B = 2, C = 3, D = 4, Name = "blue", Guid = guid, Time = now});
+        theSession.Events.Append(streamId, new ValuesSet
+        {
+            A = 1,
+            B = 2,
+            C = 3,
+            D = 4,
+            Name = "blue",
+            Guid = guid,
+            Time = now
+        });
 
         await theSession.SaveChangesAsync();
 
         var valuesSet = new ValuesSet
         {
-            A = 3, B = 4, C = 5, D = 6, Name = "blue", Guid = guid, Time = now
+            A = 3,
+            B = 4,
+            C = 5,
+            D = 6,
+            Name = "blue",
+            Guid = guid,
+            Time = now
         };
 
         theSession.Events.Append(streamId, valuesSet);
@@ -145,13 +167,24 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
     public async Task increment_values_on_existing_row()
     {
         var streamId = Guid.NewGuid().ToString();
-        theSession.Events.Append(streamId, new ValuesSet { A = 1, B = 2, C = 3, D = 4, Name = "green"});
+        theSession.Events.Append(streamId, new ValuesSet
+        {
+            A = 1,
+            B = 2,
+            C = 3,
+            D = 4,
+            Name = "green"
+        });
 
         await theSession.SaveChangesAsync();
 
         var valuesAdded = new ValuesAdded
         {
-            A = 3, B = 4, C = 5, D = 6, Name = "green"
+            A = 3,
+            B = 4,
+            C = 5,
+            D = 6,
+            Name = "green"
         };
 
         theSession.Events.Append(streamId, valuesAdded);
@@ -173,13 +206,24 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
     public async Task decrement_values_on_existing_row()
     {
         var streamId = Guid.NewGuid().ToString();
-        theSession.Events.Append(streamId, new ValuesSet { A = 10, B = 10, C = 10, D = 10, Name = "orange"});
+        theSession.Events.Append(streamId, new ValuesSet
+        {
+            A = 10,
+            B = 10,
+            C = 10,
+            D = 10,
+            Name = "orange"
+        });
 
         await theSession.SaveChangesAsync();
 
         var valuesAdded = new ValuesSubtracted
         {
-            A = 3, B = 4, C = 5, D = 6, Name = "orange"
+            A = 3,
+            B = 4,
+            C = 5,
+            D = 6,
+            Name = "orange"
         };
 
         theSession.Events.Append("orange", valuesAdded);
@@ -192,7 +236,6 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
         data.B.ShouldBe(6);
         data.C.ShouldBe(5);
         data.D.ShouldBe(4);
-
     }
 
     [Fact]
@@ -202,22 +245,29 @@ public class flat_table_projection_with_event_member_identifier_end_to_end : One
         var time = DateTimeOffset.UtcNow;
 
         var streamId = Guid.NewGuid().ToString();
-        theSession.Events.Append(streamId, new ValuesSet { A = 10, B = 10, C = 10, D = 10, Name = "purple", Guid = guid, Time = time});
+        theSession.Events.Append(streamId, new ValuesSet
+        {
+            A = 10,
+            B = 10,
+            C = 10,
+            D = 10,
+            Name = "purple",
+            Guid = guid,
+            Time = time
+        });
 
         await theSession.SaveChangesAsync();
 
-        theSession.Events.Append(streamId, new ValuesDeleted{Name = "purple"});
+        theSession.Events.Append(streamId, new ValuesDeleted { Name = "purple" });
         await theSession.SaveChangesAsync();
 
         await using var conn = new NpgsqlConnection(ConnectionSource.ConnectionString);
         await conn.OpenAsync();
-        var count = await conn
-            .CreateCommand($"select count(*) from {SchemaName}.member_values where name = :id")
+        var count = await CommandExtensions
+            .CreateCommand(conn, $"select count(*) from {SchemaName}.member_values where name = :id")
             .With("id", "purple")
             .ExecuteScalarAsync();
 
         count.As<long>().ShouldBe(0);
-
-
     }
 }

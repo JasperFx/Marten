@@ -1,6 +1,7 @@
 using System.IO;
 using Marten.Schema;
 using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Functions;
 
 namespace Marten.Storage;
@@ -15,7 +16,7 @@ internal class SystemFunction: Function
     }
 
     public SystemFunction(string schema, string functionName, string args, bool isRemoved = false)
-        : base(new DbObjectName(schema, functionName))
+        : base(new PostgresqlObjectName(schema, functionName))
     {
         IsRemoved = isRemoved;
         _args = args;

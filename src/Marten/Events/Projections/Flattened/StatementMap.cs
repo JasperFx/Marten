@@ -8,6 +8,7 @@ using JasperFx.Core.Reflection;
 using Marten.Events.CodeGeneration;
 using Marten.Internal.CodeGeneration;
 using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Tables;
 
 namespace Marten.Events.Projections.Flattened;
@@ -42,7 +43,7 @@ public class StatementMap<T>: IEventHandler
     IEnumerable<ISchemaObject> IEventHandler.BuildObjects(EventGraph events, Table table)
     {
         var functionName = $"mt_upsert_{table.Identifier.Name}_{typeof(T).NameInCode().Sanitize()}";
-        _functionIdentifier = new DbObjectName(table.Identifier.Schema, functionName);
+        _functionIdentifier = new PostgresqlObjectName(table.Identifier.Schema, functionName);
 
         yield return new FlatTableUpsertFunction(_functionIdentifier, table, _columnMaps);
     }

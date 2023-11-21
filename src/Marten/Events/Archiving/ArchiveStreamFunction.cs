@@ -1,5 +1,6 @@
 using System.IO;
 using Weasel.Core;
+using Weasel.Postgresql;
 using Weasel.Postgresql.Functions;
 
 namespace Marten.Events.Archiving;
@@ -10,7 +11,7 @@ internal class ArchiveStreamFunction: Function
 
     private readonly EventGraph _events;
 
-    public ArchiveStreamFunction(EventGraph events): base(new DbObjectName(events.DatabaseSchemaName, Name))
+    public ArchiveStreamFunction(EventGraph events): base(new PostgresqlObjectName(events.DatabaseSchemaName, Name))
     {
         _events = events;
     }
