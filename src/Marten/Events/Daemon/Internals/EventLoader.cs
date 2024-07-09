@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ using Weasel.Postgresql.SqlGeneration;
 
 namespace Marten.Events.Daemon.Internals;
 
-internal class EventLoader: IEventLoader
+internal sealed class EventLoader: IEventLoader
 {
     private readonly int _aggregateIndex;
     private readonly int _batchSize;
@@ -23,7 +24,6 @@ internal class EventLoader: IEventLoader
     private readonly NpgsqlParameter _floor;
     private readonly IEventStorage _storage;
     private readonly IDocumentStore _store;
-
     public EventLoader(DocumentStore store, MartenDatabase database, AsyncProjectionShard shard, AsyncOptions options) : this(store, database, options, shard.BuildFilters(store).ToArray())
     {
 
@@ -80,6 +80,8 @@ internal class EventLoader: IEventLoader
         _floor.Value = request.Floor;
         _ceiling.Value = request.HighWater;
 
+        var skippedEvents = 0;
+
         await using var reader = await session.ExecuteReaderAsync(_command, token).ConfigureAwait(false);
         while (await reader.ReadAsync(token).ConfigureAwait(false))
         {
@@ -100,7 +102,8 @@ internal class EventLoader: IEventLoader
             {
                 if (request.ErrorOptions.SkipUnknownEvents)
                 {
-                    request.Runtime.Logger.LogWarning("Skipping unknown event type '{EventTypeName}'", e.EventTypeName);
+                    request.Runtime.Logger.EventUnknown(e.EventTypeName);
+                    skippedEvents++;
                 }
                 else
                 {
@@ -112,7 +115,10 @@ internal class EventLoader: IEventLoader
             {
                 if (request.ErrorOptions.SkipSerializationErrors)
                 {
+                    request.Runtime.Logger.EventDeserializationException(e.InnerException!.GetType().Name!, e.Sequence);
+                    request.Runtime.Logger.EventDeserializationExceptionDebug(e);
                     await request.Runtime.RecordDeadLetterEventAsync(e.ToDeadLetterEvent(request.Name)).ConfigureAwait(false);
+                    skippedEvents++;
                 }
                 else
                 {
@@ -122,8 +128,23 @@ internal class EventLoader: IEventLoader
             }
         }
 
-        page.CalculateCeiling(_batchSize, request.HighWater);
+        page.CalculateCeiling(_batchSize, request.HighWater, skippedEvents);
 
         return page;
     }
+
 }
+
+internal static partial class Log
+{
+    [LoggerMessage(LogLevel.Warning, "Skipping unknown event type '{EventTypeName}'")]
+    public static partial void EventUnknown(this ILogger logger, string eventTypeName);
+
+    [LoggerMessage(LogLevel.Warning,"Suppressed Serialization exception of type {ExceptionName} occured whilst loading event at sequence {Sequence}. Enable debug logging or disable SkipSerializationErrors for full stack trace.")]
+    public static partial void EventDeserializationException(this ILogger logger, string exceptionName, long sequence);
+
+    [LoggerMessage(LogLevel.Debug)]
+    public static partial void EventDeserializationExceptionDebug(this ILogger logger, Exception exception);
+}
+
+

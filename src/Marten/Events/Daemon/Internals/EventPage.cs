@@ -13,9 +13,9 @@ public class EventPage: List<IEvent>
     public long Floor { get; }
     public long Ceiling { get; private set; }
 
-    public void CalculateCeiling(int batchSize, long highWaterMark)
+    public void CalculateCeiling(int batchSize, long highWaterMark, int skippedEvents)
     {
-        Ceiling = Count == batchSize
+        Ceiling = (Count + skippedEvents) == batchSize
             ? this.Last().Sequence
             : highWaterMark;
     }

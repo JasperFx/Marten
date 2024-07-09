@@ -157,7 +157,7 @@ public class SubscriptionAgent: ISubscriptionAgent, IAsyncDisposable
     public async Task ReplayAsync(SubscriptionExecutionRequest request, long highWaterMark, TimeSpan timeout)
     {
         Mode = ShardExecutionMode.Rebuild;
-        _rebuild = new TaskCompletionSource();
+        _rebuild = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _execution.Mode = ShardExecutionMode.Rebuild;
         ErrorOptions = request.ErrorHandling;
         _runtime = request.Runtime;
