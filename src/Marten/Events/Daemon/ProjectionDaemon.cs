@@ -130,7 +130,7 @@ public partial class ProjectionDaemon : IProjectionDaemon, IObserver<ShardState>
             // Ensure that the agent is stopped if it is already running
             await stopIfRunningAsync(agent.Name.Identity).ConfigureAwait(false);
 
-            var errorOptions = _store.Options.Projections.Errors;
+            var errorOptions = _store.Options.Projections.RebuildErrors;
 
             var request = new SubscriptionExecutionRequest(0, ShardExecutionMode.Rebuild, errorOptions, this);
             await agent.ReplayAsync(request, highWaterMark, shardTimeout).ConfigureAwait(false);
