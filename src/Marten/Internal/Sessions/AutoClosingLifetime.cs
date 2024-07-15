@@ -302,7 +302,7 @@ internal class AutoClosingLifetime: ConnectionLifetimeBase, IConnectionLifetime,
                     Logger.OnBeforeExecute(batch);
                     try
                     {
-                        await using var reader = batch.ExecuteReader();
+                        await using var reader = await batch.ExecuteReaderAsync(token).ConfigureAwait(false);
                         await page.ApplyCallbacksAsync(reader, exceptions, token).ConfigureAwait(false);
                         await reader.CloseAsync().ConfigureAwait(false);
                     }
