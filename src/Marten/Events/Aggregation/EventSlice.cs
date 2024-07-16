@@ -38,12 +38,22 @@ public class EventSlice<TDoc, TId>: IEventSlice, IComparer<IEvent>
     {
     }
 
+    private readonly StreamActionType? _actionType;
+
     /// <summary>
     ///     Is this action the start of a new stream or appending
     ///     to an existing stream?
     /// </summary>
-    public StreamActionType ActionType => _events[0].Version == 1 ? StreamActionType.Start : StreamActionType.Append;
-
+    /// <remarks>
+    ///     Default's to determining from the version of the first event on
+    ///     stream, but can be overridden so that the value works with
+    ///     QuickAppend
+    /// </remarks>
+    public StreamActionType ActionType
+    {
+        get => _actionType ?? (_events[0].Version == 1 ? StreamActionType.Start : StreamActionType.Append);
+        init => _actionType = value;
+    }
 
     /// <summary>
     ///     The aggregate identity

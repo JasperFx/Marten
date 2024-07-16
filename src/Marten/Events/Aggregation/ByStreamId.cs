@@ -22,7 +22,7 @@ public class ByStreamId<TDoc>: IEventSlicer<TDoc, Guid>, ISingleStreamSlicer
         return new ValueTask<IReadOnlyList<EventSlice<TDoc, Guid>>>(streams.Select(s =>
         {
             var tenant = new Tenant(s.TenantId, querySession.Database);
-            return new EventSlice<TDoc, Guid>(s.Id, tenant, s.Events);
+            return new EventSlice<TDoc, Guid>(s.Id, tenant, s.Events){ActionType = s.ActionType};
         }).ToList());
     }
 

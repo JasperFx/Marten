@@ -67,7 +67,8 @@ public abstract class AggregationRuntime<TDoc, TId>: IAggregationRuntime<TDoc, T
         }
 
         var aggregate = slice.Aggregate;
-        if (slice.Aggregate == null && lifecycle == ProjectionLifecycle.Inline)
+        // do not load if sliced by stream and the stream does not yet exist
+        if (slice.Aggregate == null && lifecycle == ProjectionLifecycle.Inline && (Slicer is not ISingleStreamSlicer || slice.ActionType != StreamActionType.Start))
         {
             aggregate = await Storage.LoadAsync(slice.Id, session, cancellation).ConfigureAwait(false);
         }

@@ -19,7 +19,7 @@ public class ByStreamKey<TDoc>: IEventSlicer<TDoc, string>, ISingleStreamSlicer
         return new ValueTask<IReadOnlyList<EventSlice<TDoc, string>>>(streams.Select(s =>
         {
             var tenant = new Tenant(s.TenantId, querySession.Database);
-            return new EventSlice<TDoc, string>(s.Key!, tenant, s.Events);
+            return new EventSlice<TDoc, string>(s.Key!, tenant, s.Events){ActionType = s.ActionType};
         }).ToList());
     }
 
