@@ -117,6 +117,7 @@ public abstract class AggregationRuntime<TDoc, TId>: IAggregationRuntime<TDoc, T
             return;
         }
 
+        // TODO -- clean this up
         var storageOperation = Storage.Upsert(aggregate, session, slice.Tenant.TenantId);
         if (Slicer is ISingleStreamSlicer && lastEvent != null && storageOperation is IRevisionedOperation op)
         {

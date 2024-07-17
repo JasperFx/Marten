@@ -123,6 +123,12 @@ public class DocumentMapping: IDocumentMapping, IDocumentType
 
     internal DocumentSchema Schema => _schema.Value;
 
+    /// <summary>
+    /// This is a workaround for the quick append + inline projection
+    /// issue
+    /// </summary>
+    public bool UseVersionFromMatchingStream { get; set; }
+
     public HiloSettings HiloSettings
     {
         get => _hiloSettings;

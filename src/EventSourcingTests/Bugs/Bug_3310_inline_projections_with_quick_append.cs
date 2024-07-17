@@ -2,10 +2,12 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using JasperFx.CodeGeneration;
 using JasperFx.Core;
 using Marten;
 using Marten.Events;
 using Marten.Events.Projections;
+using Marten.Metadata;
 using Marten.Schema;
 using Marten.Storage;
 using Marten.Testing.Harness;
@@ -40,13 +42,45 @@ public class Bug_3310_inline_projections_with_quick_append : BugIntegrationConte
             opts.Events.AddEventType<LoadTestUnrelatedEvent>();
             opts.Projections.Snapshot<LoadTestInlineProjection>(SnapshotLifecycle.Inline);
             opts.Projections.Snapshot<LoadTestUnrelatedInlineProjection>(SnapshotLifecycle.Inline);
+
+            // opts.SetApplicationProject(GetType().Assembly);
+            // opts.GeneratedCodeMode = TypeLoadMode.Auto;
+            // opts.GeneratedCodeOutputPath =
+            //     AppContext.BaseDirectory.ParentDirectory().ParentDirectory().ParentDirectory().AppendPath("Internal", "Generated");
+
         });
+    }
+
+    [Fact]
+    public async Task start_and_append_events_to_same_stream()
+    {
+        await using var session = theStore.LightweightSession(tenant);
+
+        session.Logger = new TestOutputMartenLogger(_testOutputHelper);
+
+        var streamId = Guid.NewGuid().ToString();
+
+        session.Events.StartStream<LoadTestInlineProjection>(streamId,new LoadTestEvent(Guid.NewGuid(), 1),
+            new LoadTestEvent(Guid.NewGuid(), 2), new LoadTestEvent(Guid.NewGuid(), 3));
+        await session.SaveChangesAsync();
+
+        _testOutputHelper.WriteLine("APPEND STARTS HERE");
+
+        session.Events.Append(streamId, new LoadTestEvent(Guid.NewGuid(), 4), new LoadTestEvent(Guid.NewGuid(), 5));
+        await session.SaveChangesAsync();
+
+        var doc = await session.LoadAsync<LoadTestInlineProjection>(streamId);
+        doc.Version.ShouldBe(5);
+
+
     }
 
     [Fact]
     public async Task create_1_stream_with_many_events()
     {
         await using var session = theStore.LightweightSession(tenant);
+
+        session.Logger = new TestOutputMartenLogger(_testOutputHelper);
 
         await Preload(session);
 
@@ -187,13 +221,13 @@ public class Bug_3310_inline_projections_with_quick_append : BugIntegrationConte
     public record LoadTestUnrelatedEvent;
 
     [DocumentAlias("load_testing_inline_projection")]
-    public record LoadTestInlineProjection
+    public record LoadTestInlineProjection : IRevisioned
     {
         [Identity]
         public string StreamKey { get; init; }
         public Guid LastValue { get; init; }
         public long Sum { get; init; }
-        [Version]
+        //[Version]
         public int Version { get; set; }
 
         public LoadTestInlineProjection Apply(LoadTestEvent @event, LoadTestInlineProjection current)

@@ -282,23 +282,26 @@ public class StreamAction
         var i = currentVersion;
 
         // Augment the events before checking expected versions, this allows the sequence/etc to properly be set on the resulting tombstone events
-        foreach (var @event in _events)
+        if (graph.AppendMode == EventAppendMode.Rich || ActionType == StreamActionType.Start)
         {
-            @event.Version = ++i;
-            if (@event.Id == Guid.Empty)
+            foreach (var @event in _events)
             {
-                @event.Id = CombGuidIdGeneration.NewGuid();
+                @event.Version = ++i;
+                if (@event.Id == Guid.Empty)
+                {
+                    @event.Id = CombGuidIdGeneration.NewGuid();
+                }
+
+                if (sequences.TryDequeue(out var sequence))
+                {
+                    @event.Sequence = sequence;
+                }
+
+                @event.TenantId = session.TenantId;
+                @event.Timestamp = timestamp;
+
+                ProcessMetadata(@event, graph, session);
             }
-
-            if (sequences.TryDequeue(out var sequence))
-            {
-                @event.Sequence = sequence;
-            }
-
-            @event.TenantId = session.TenantId;
-            @event.Timestamp = timestamp;
-
-            ProcessMetadata(@event, graph, session);
         }
 
         if (currentVersion != 0)
@@ -396,5 +399,15 @@ public class StreamAction
             EventTypeName = mapping.EventTypeName,
             DotNetTypeName = mapping.DotNetTypeName
         });
+    }
+
+    public void ApplyEndingVersion(long endingVersion)
+    {
+        var version = endingVersion;
+        foreach (var e in Events.Reverse())
+        {
+            e.Version = version;
+            version--;
+        }
     }
 }

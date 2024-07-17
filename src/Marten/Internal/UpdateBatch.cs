@@ -9,7 +9,6 @@ namespace Marten.Internal;
 
 public class UpdateBatch: IUpdateBatch
 {
-    private readonly IList<Exception> _exceptions = new List<Exception>();
     private readonly IReadOnlyList<IStorageOperation> _operations;
 
     public UpdateBatch(IReadOnlyList<IStorageOperation> operations)

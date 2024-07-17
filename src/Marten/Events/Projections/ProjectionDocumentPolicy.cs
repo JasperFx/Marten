@@ -19,6 +19,7 @@ internal class ProjectionDocumentPolicy : IDocumentPolicy
             mapping.UseOptimisticConcurrency = false;
             mapping.Metadata.Version.Enabled = false;
             mapping.UseNumericRevisions = true;
+            mapping.UseVersionFromMatchingStream = true;
             mapping.Metadata.Revision.Enabled = true;
         }
     }

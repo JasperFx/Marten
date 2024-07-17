@@ -52,7 +52,7 @@ internal class UnitOfWork: ISessionWorkTracker
         }
     }
 
-    public IReadOnlyList<IStorageOperation> AllOperations => _operations.Concat(_eventOperations).ToList();
+    public IReadOnlyList<IStorageOperation> AllOperations => _eventOperations.Concat(_operations).ToList();
 
     public void Sort(StoreOptions options)
     {

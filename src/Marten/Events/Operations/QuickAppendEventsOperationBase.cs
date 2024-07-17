@@ -43,6 +43,8 @@ public abstract class QuickAppendEventsOperationBase : IStorageOperation
         {
             var values = reader.GetFieldValue<long[]>(0);
 
+            Stream.ApplyEndingVersion(values[0]);
+
             // Ignore the first value
             for (int i = 1; i < values.Length; i++)
             {
@@ -103,6 +105,8 @@ public abstract class QuickAppendEventsOperationBase : IStorageOperation
         if (await reader.ReadAsync(token).ConfigureAwait(false))
         {
             var values = await reader.GetFieldValueAsync<long[]>(0, token).ConfigureAwait(false);
+
+            Stream.ApplyEndingVersion(values[0]);
 
             // Ignore the first value
             for (int i = 1; i < values.Length; i++)
