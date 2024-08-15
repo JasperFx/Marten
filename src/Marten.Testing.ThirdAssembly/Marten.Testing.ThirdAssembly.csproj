@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <Description>Dummy project for test scenario</Description>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <TargetFrameworks><!--net6.0;net7.0;-->net8.0</TargetFrameworks>
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>

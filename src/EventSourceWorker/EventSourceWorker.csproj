@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <TargetFrameworks><!--net6.0;net7.0;-->net8.0</TargetFrameworks>
         <UserSecretsId>dotnet-EventSourceWorker-01BE20B5-3C2D-434B-8822-823B56E3F401</UserSecretsId>
         <nullable>enable</nullable>
     </PropertyGroup>

@@ -39,7 +39,7 @@ internal class StreamsTable: Table
 
         AddColumn(new StreamTableColumn("timestamp", x => x.Timestamp)
         {
-            Type = "timestamptz", Writes = false, AllowNulls = false, DefaultExpression = "(now())"
+            Type = "timestamptz", Writes = true, AllowNulls = false, DefaultExpression = "(now())"
         });
 
 
@@ -48,7 +48,7 @@ internal class StreamsTable: Table
 
         AddColumn(new StreamTableColumn("created", x => x.Created)
         {
-            Type = "timestamptz", Writes = false, AllowNulls = false, DefaultExpression = "(now())"
+            Type = "timestamptz", Writes = true, AllowNulls = false, DefaultExpression = "(now())"
         });
 
         if (events.TenancyStyle != TenancyStyle.Conjoined)

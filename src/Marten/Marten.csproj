@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Description>.NET Transactional Document DB and Event Store on PostgreSQL</Description>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <TargetFrameworks><!--net6.0;net7.0;-->net8.0</TargetFrameworks>
         <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>

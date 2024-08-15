@@ -9,7 +9,7 @@ namespace Marten.Events.TestSupport;
 
 public partial class ProjectionScenario
 {
-    public StreamAction Append(Guid stream, IEnumerable<object> events)
+    public StreamAction Append(Guid stream, IEnumerable<object> events, DateTimeOffset? backfillTimestamp = null)
     {
         var step = action(e => e.Append(stream, events));
         if (events.Count() > 3)
@@ -24,7 +24,7 @@ public partial class ProjectionScenario
         return StreamAction.Append(_store.Events, stream, events);
     }
 
-    public StreamAction Append(Guid stream, params object[] events)
+    public StreamAction Append(Guid stream, DateTimeOffset? backfillTimestamp = null, params object[] events)
     {
         var step = action(e => e.Append(stream, events));
         if (events.Count() > 3)
@@ -39,7 +39,7 @@ public partial class ProjectionScenario
         return StreamAction.Append(_store.Events, stream, events);
     }
 
-    public StreamAction Append(string stream, IEnumerable<object> events)
+    public StreamAction Append(string stream, IEnumerable<object> events, DateTimeOffset? backfillTimestamp = null)
     {
         var step = action(e => e.Append(stream, events));
         if (events.Count() > 3)
@@ -54,7 +54,7 @@ public partial class ProjectionScenario
         return StreamAction.Append(_store.Events, stream, events);
     }
 
-    public StreamAction Append(string stream, params object[] events)
+    public StreamAction Append(string stream, DateTimeOffset? backfillTimestamp = null, params object[] events)
     {
         var step = action(e => e.Append(stream, events));
         if (events.Count() > 3)
@@ -69,9 +69,9 @@ public partial class ProjectionScenario
         return StreamAction.Append(_store.Events, stream, events);
     }
 
-    public StreamAction Append(Guid stream, long expectedVersion, params object[] events)
+    public StreamAction Append(Guid stream, long expectedVersion, DateTimeOffset? backfillTimestamp = null, params object[] events)
     {
-        var step = action(e => e.Append(stream, expectedVersion, events));
+        var step = action(e => e.Append(stream, expectedVersion,backfillTimestamp, events));
         if (events.Count() > 3)
         {
             step.Description = $"Append({stream}, {expectedVersion}, events)";
@@ -85,7 +85,7 @@ public partial class ProjectionScenario
         return StreamAction.Append(_store.Events, stream, events);
     }
 
-    public StreamAction Append(string stream, long expectedVersion, IEnumerable<object> events)
+    public StreamAction Append(string stream, long expectedVersion, IEnumerable<object> events, DateTimeOffset? backfillTimestamp = null)
     {
         var step = action(e => e.Append(stream, expectedVersion, events));
         if (events.Count() > 3)
@@ -101,7 +101,7 @@ public partial class ProjectionScenario
         return StreamAction.Append(_store.Events, stream, events);
     }
 
-    public StreamAction Append(string stream, long expectedVersion, params object[] events)
+    public StreamAction Append(string stream, long expectedVersion, DateTimeOffset? backfillTimestamp = null, params object[] events)
     {
         var step = action(e => e.Append(stream, expectedVersion, events));
         if (events.Count() > 3)

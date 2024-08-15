@@ -16,7 +16,7 @@ public interface IEventStore: IEventOperations, IQueryEventStore
     /// <param name="stream"></param>
     /// <param name="expectedVersion">Expected maximum event version after append</param>
     /// <param name="events"></param>
-    StreamAction Append(Guid stream, long expectedVersion, IEnumerable<object> events);
+    StreamAction Append(Guid stream, long expectedVersion, IEnumerable<object> events, DateTimeOffset? backfillTimestamp = null);
 
     /// <summary>
     ///     Creates a new event stream based on a user-supplied Guid and appends the events in order to the new stream

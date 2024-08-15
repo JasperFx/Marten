@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
+using JasperFx.Core;
 using Marten.Internal.Sessions;
 
 namespace Marten.Events;
 
 public partial class EventGraph
 {
-    internal StreamAction Append(DocumentSessionBase session, Guid stream, params object[] events)
+    internal StreamAction Append(DocumentSessionBase session, Guid stream, DateTimeOffset? backfillTimestamp = null, params object[] events)
     {
         EnsureAsGuidStorage(session);
 
@@ -21,6 +22,11 @@ public partial class EventGraph
             e.StreamId = stream;
             return e;
         }).ToArray();
+
+        if (backfillTimestamp is not null)
+        {
+            wrapped.Each(x => x.Timestamp = backfillTimestamp.Value);
+        }
 
         if (session.WorkTracker.TryFindStream(stream, out var eventStream))
         {
@@ -37,7 +43,7 @@ public partial class EventGraph
         return eventStream;
     }
 
-    internal StreamAction Append(DocumentSessionBase session, string stream, params object[] events)
+    internal StreamAction Append(DocumentSessionBase session, string stream, DateTimeOffset? backfillTimestamp = null, params object[] events)
     {
         EnsureAsStringStorage(session);
 
@@ -52,6 +58,11 @@ public partial class EventGraph
             e.StreamKey = stream;
             return e;
         }).ToArray();
+
+        if (backfillTimestamp is not null)
+        {
+            wrapped.Each(x => x.Timestamp = backfillTimestamp.Value);
+        }
 
         if (session.WorkTracker.TryFindStream(stream, out var eventStream))
         {

@@ -21,8 +21,7 @@ internal class EventsTable: Table
         AddColumn(new VersionColumn());
         AddColumn<EventJsonDataColumn>();
         AddColumn<EventTypeColumn>();
-        AddColumn(new EventTableColumn("timestamp", x => x.Timestamp))
-            .NotNull().DefaultValueByString("(now())");
+        AddColumn(new EventTableColumn("timestamp", x => x.Timestamp)).NotNull().DefaultValueByString("(now())");
 
         AddColumn<TenantIdColumn>();
 
@@ -122,6 +121,7 @@ internal class EventsTable: Table
         var data = columns.OfType<EventJsonDataColumn>().Single();
         var typeName = columns.OfType<EventTypeColumn>().Single();
         var dotNetTypeName = columns.OfType<DotNetTypeColumn>().Single();
+        var timestamp = columns.OfType<EventTableColumn>().Single(x => x.Name == "timestamp");
 
         columns.Remove(data);
         columns.Insert(0, data);
@@ -129,6 +129,8 @@ internal class EventsTable: Table
         columns.Insert(1, typeName);
         columns.Remove(dotNetTypeName);
         columns.Insert(2, dotNetTypeName);
+        columns.Remove(timestamp);
+        columns.Insert(3, timestamp);
 
         return columns;
     }

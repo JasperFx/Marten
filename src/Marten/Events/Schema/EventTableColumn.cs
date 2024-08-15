@@ -19,7 +19,8 @@ internal class EventTableColumn: TableColumn, IEventTableColumn
 {
     private readonly Expression<Func<IEvent, object>> _eventMemberExpression;
 
-    public EventTableColumn(string name, Expression<Func<IEvent, object>> eventMemberExpression): base(name, "varchar")
+    public
+        EventTableColumn(string name, Expression<Func<IEvent, object>> eventMemberExpression): base(name, "varchar")
     {
         _eventMemberExpression = eventMemberExpression;
         Member = MemberFinder.Determine(eventMemberExpression).Single();

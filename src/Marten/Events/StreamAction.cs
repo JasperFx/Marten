@@ -112,6 +112,20 @@ public class StreamAction
     /// </summary>
     public DateTimeOffset? Created { get; internal set; }
 
+    /// <summary>
+    /// Support for backfilling events into the stream
+    /// </summary>
+    /// <param name="created"></param>
+    /// <param name="timestamp"></param>
+    /// <returns></returns>
+    public StreamAction WithBackfill(DateTimeOffset? created = null, DateTimeOffset? timestamp = null)
+    {
+        Created = created ?? Created;
+        Timestamp = timestamp ?? Timestamp;
+
+        return this;
+    }
+
     internal StreamAction AddEvents(IReadOnlyList<IEvent> events)
     {
         _events.AddRange(events);
@@ -341,7 +355,7 @@ public class StreamAction
             }
 
             @event.TenantId = session.TenantId;
-            @event.Timestamp = timestamp;
+            @event.Timestamp = @event.Timestamp == default ? timestamp : @event.Timestamp;
 
             ProcessMetadata(@event, graph, session);
         }
@@ -365,7 +379,7 @@ public class StreamAction
             }
 
             @event.TenantId = session.TenantId;
-            @event.Timestamp = timestamp;
+            @event.Timestamp = @event.Timestamp == default ? timestamp : @event.Timestamp;
 
             ProcessMetadata(@event, graph, session);
         }
