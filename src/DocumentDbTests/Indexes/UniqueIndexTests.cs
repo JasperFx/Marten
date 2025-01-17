@@ -51,8 +51,6 @@ public class UniqueUser
 
 public class UniqueIndexTests: OneOffConfigurationsContext
 {
-    public const string UniqueSqlState = "23505";
-
     public UniqueIndexTests()
     {
         StoreOptions(opts =>
@@ -90,7 +88,7 @@ public class UniqueIndexTests: OneOffConfigurationsContext
         }
         catch (DocumentAlreadyExistsException exception)
         {
-            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(UniqueSqlState);
+            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
         }
     }
 
@@ -116,7 +114,7 @@ public class UniqueIndexTests: OneOffConfigurationsContext
         }
         catch (DocumentAlreadyExistsException exception)
         {
-            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(UniqueSqlState);
+            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
         }
     }
 
@@ -146,7 +144,7 @@ public class UniqueIndexTests: OneOffConfigurationsContext
         }
         catch (MartenCommandException exception)
         {
-            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(UniqueSqlState);
+            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
         }
     }
 
@@ -173,7 +171,7 @@ public class UniqueIndexTests: OneOffConfigurationsContext
         }
         catch (DocumentAlreadyExistsException exception)
         {
-            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(UniqueSqlState);
+            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
         }
     }
 }

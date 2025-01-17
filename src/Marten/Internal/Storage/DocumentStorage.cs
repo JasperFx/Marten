@@ -162,7 +162,7 @@ public abstract class DocumentStorage<T, TId>: IDocumentStorage<T, TId>, IHaveMe
         }
         catch (PostgresException e)
         {
-            if (!e.Message.Contains("does not exist"))
+            if (e.SqlState != PostgresErrorCodes.UndefinedTable)
             {
                 throw;
             }
@@ -178,7 +178,7 @@ public abstract class DocumentStorage<T, TId>: IDocumentStorage<T, TId>, IHaveMe
         }
         catch (PostgresException e)
         {
-            if (!e.Message.Contains("does not exist"))
+            if (e.SqlState != PostgresErrorCodes.UndefinedTable)
             {
                 throw;
             }

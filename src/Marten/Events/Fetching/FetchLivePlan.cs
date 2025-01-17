@@ -77,7 +77,7 @@ internal class FetchLivePlan<TDoc, TId>: IAggregateFetchPlan<TDoc, TId> where TD
         }
         catch (Exception e)
         {
-            if (e.InnerException is NpgsqlException inner && inner.Message.Contains("current transaction is aborted"))
+            if (e.InnerException is NpgsqlException { SqlState: PostgresErrorCodes.InFailedSqlTransaction })
             {
                 throw new StreamLockedException(id, e.InnerException);
             }
@@ -142,7 +142,7 @@ internal class FetchLivePlan<TDoc, TId>: IAggregateFetchPlan<TDoc, TId> where TD
         }
         catch (Exception e)
         {
-            if (e.InnerException is NpgsqlException inner && inner.Message.Contains("current transaction is aborted"))
+            if (e.InnerException is NpgsqlException { SqlState: PostgresErrorCodes.InFailedSqlTransaction })
             {
                 throw new StreamLockedException(id, e.InnerException);
             }

@@ -22,9 +22,6 @@ public interface IRevisionedOperation
 
 public abstract class StorageOperation<T, TId>: IDocumentStorageOperation, IExceptionTransform, IRevisionedOperation
 {
-    private const string ExpectedMessage = "23505: duplicate key value violates unique constraint";
-
-
     private readonly T _document;
     protected readonly TId _id;
     private readonly string _tableName;
@@ -249,16 +246,11 @@ public abstract class StorageOperation<T, TId>: IDocumentStorageOperation, IExce
             original = m.InnerException;
         }
 
-        if (original.Message.Contains(ExpectedMessage))
+        if (original is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgresException &&
+            postgresException.TableName == _tableName)
         {
-            if (original is PostgresException e)
-            {
-                if (e.TableName == _tableName)
-                {
-                    transformed = new DocumentAlreadyExistsException(original, typeof(T), _id);
-                    return true;
-                }
-            }
+            transformed = new DocumentAlreadyExistsException(original, typeof(T), _id);
+            return true;
         }
 
         return false;

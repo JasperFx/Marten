@@ -1,12 +1,12 @@
 using System;
 using JasperFx.Core.Exceptions;
 using Marten.Exceptions;
+using Npgsql;
 
 namespace Marten.Schema;
 
 public sealed class InsertExceptionTransform<T>: IExceptionTransform
 {
-    private const string ExpectedMessage = "23505: duplicate key value violates unique constraint";
     private readonly object id;
     private readonly string tableName;
 
@@ -20,8 +20,8 @@ public sealed class InsertExceptionTransform<T>: IExceptionTransform
     {
         transformed = null;
 
-        if (original.Message?.IndexOf(ExpectedMessage, StringComparison.OrdinalIgnoreCase) > -1 &&
-            original.Message?.IndexOf(tableName, StringComparison.Ordinal) > -1)
+        if (original is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgresException &&
+            postgresException.TableName == tableName)
         {
             transformed = new DocumentAlreadyExistsException(original, typeof(T), id);
             return true;

@@ -12,8 +12,6 @@ namespace DocumentDbTests.MultiTenancy;
 
 public class UniqueIndexMultiTenantTests: OneOffConfigurationsContext
 {
-    public const string UniqueSqlState = "23505";
-
     public class Project
     {
         public Project()
@@ -69,7 +67,7 @@ public class UniqueIndexMultiTenantTests: OneOffConfigurationsContext
         }
         catch (DocumentAlreadyExistsException exception)
         {
-            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(UniqueSqlState);
+            ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
         }
     }
 
@@ -100,7 +98,7 @@ public class UniqueIndexMultiTenantTests: OneOffConfigurationsContext
             }
             catch (DocumentAlreadyExistsException exception)
             {
-                ((PostgresException)exception.InnerException).SqlState.ShouldBe(UniqueSqlState);
+                ((PostgresException)exception.InnerException).SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
             }
         }
 
@@ -124,7 +122,7 @@ public class UniqueIndexMultiTenantTests: OneOffConfigurationsContext
             }
             catch (DocumentAlreadyExistsException exception)
             {
-                ((PostgresException)exception.InnerException).SqlState.ShouldBe(UniqueSqlState);
+                ((PostgresException)exception.InnerException).SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
             }
         }
     }
@@ -157,7 +155,7 @@ public class UniqueIndexMultiTenantTests: OneOffConfigurationsContext
             }
             catch (DocumentAlreadyExistsException exception)
             {
-                ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(UniqueSqlState);
+                ((PostgresException)exception.InnerException)?.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
             }
         }
 
@@ -181,7 +179,7 @@ public class UniqueIndexMultiTenantTests: OneOffConfigurationsContext
             }
             catch (DocumentAlreadyExistsException exception)
             {
-                ((PostgresException)exception.InnerException).SqlState.ShouldBe(UniqueSqlState);
+                ((PostgresException)exception.InnerException).SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation);
             }
         }
     }

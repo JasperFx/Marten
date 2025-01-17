@@ -4,10 +4,12 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JasperFx.Core.Exceptions;
+using Marten.Events.Schema;
 using Marten.Exceptions;
 using Marten.Internal;
 using Marten.Internal.Operations;
 using Marten.Services;
+using Npgsql;
 using Weasel.Postgresql;
 
 namespace Marten.Events.Operations;
@@ -47,8 +49,11 @@ public abstract class InsertStreamBase: IStorageOperation, IExceptionTransform, 
 
     private static bool matches(Exception e)
     {
-        return e.Message.Contains("23505: duplicate key value violates unique constraint") &&
-               e.Message.Contains("streams");
+        return e is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            TableName: StreamsTable.TableName
+        };
     }
 
     public bool TryTransform(Exception original, out Exception transformed)
