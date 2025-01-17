@@ -430,7 +430,7 @@ public class ProjectionOptions: DaemonSettings
         return All.Any() || _subscriptions.Any();
     }
 
-    internal ILiveAggregator<T> AggregatorFor<T>() where T : class
+    public ILiveAggregator<T> AggregatorFor<T>() where T : class
     {
         if (_liveAggregators.TryFind(typeof(T), out var aggregator))
         {
