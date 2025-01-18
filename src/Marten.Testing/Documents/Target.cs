@@ -18,7 +18,7 @@ public enum Colors
     Orange
 }
 
-public class Target
+public record Target
 {
     private static readonly Random _random = new Random(67);
 

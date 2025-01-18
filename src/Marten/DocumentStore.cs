@@ -17,10 +17,8 @@ using Marten.Exceptions;
 using Marten.Internal.Sessions;
 using Marten.Services;
 using Marten.Storage;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Weasel.Core.Migrations;
 using Weasel.Postgresql.Connections;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -115,19 +113,19 @@ public partial class DocumentStore: IDocumentStore, IAsyncDisposable
 
     [Obsolete(Marten.Internal.Sessions.QuerySession.SynchronousRemoval)]
     public void BulkInsert<T>(IReadOnlyCollection<T> documents, BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-        int batchSize = 1000)
+        int batchSize = 1000, string? updateCondition = null)
     {
         var bulkInsertion = new BulkInsertion(Tenancy.Default, Options);
-        bulkInsertion.BulkInsert(documents, mode, batchSize);
+        bulkInsertion.BulkInsert(documents, mode, batchSize, updateCondition);
     }
 
     [Obsolete(Marten.Internal.Sessions.QuerySession.SynchronousRemoval)]
     public void BulkInsertEnlistTransaction<T>(IReadOnlyCollection<T> documents,
         Transaction transaction, BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-        int batchSize = 1000)
+        int batchSize = 1000, string? updateCondition = null)
     {
         var bulkInsertion = new BulkInsertion(Tenancy.Default, Options);
-        bulkInsertion.BulkInsertEnlistTransaction(documents, transaction, mode, batchSize);
+        bulkInsertion.BulkInsertEnlistTransaction(documents, transaction, mode, batchSize, updateCondition);
     }
 
     [Obsolete(Marten.Internal.Sessions.QuerySession.SynchronousRemoval)]
@@ -141,10 +139,11 @@ public partial class DocumentStore: IDocumentStore, IAsyncDisposable
     [Obsolete(Marten.Internal.Sessions.QuerySession.SynchronousRemoval)]
     public void BulkInsert<T>(string tenantId, IReadOnlyCollection<T> documents,
         BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-        int batchSize = 1000)
+        int batchSize = 1000,
+        string? updateCondition = null)
     {
         var bulkInsertion = new BulkInsertion(Tenancy.GetTenant(Options.MaybeCorrectTenantId(tenantId)), Options);
-        bulkInsertion.BulkInsert(documents, mode, batchSize);
+        bulkInsertion.BulkInsert(documents, mode, batchSize, updateCondition);
     }
 
     [Obsolete(Marten.Internal.Sessions.QuerySession.SynchronousRemoval)]
@@ -158,27 +157,35 @@ public partial class DocumentStore: IDocumentStore, IAsyncDisposable
 
     public Task BulkInsertAsync<T>(IReadOnlyCollection<T> documents,
         BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-        int batchSize = 1000, CancellationToken cancellation = default)
+        int batchSize = 1000,
+        string? updateCondition = null,
+        CancellationToken cancellation = default)
     {
         var bulkInsertion = new BulkInsertion(Tenancy.Default, Options);
-        return bulkInsertion.BulkInsertAsync(documents, mode, batchSize, cancellation);
+        return bulkInsertion.BulkInsertAsync(documents, mode, batchSize, updateCondition, cancellation);
     }
 
     public Task BulkInsertEnlistTransactionAsync<T>(IReadOnlyCollection<T> documents,
         Transaction transaction,
         BulkInsertMode mode = BulkInsertMode.InsertsOnly,
-        int batchSize = 1000, CancellationToken cancellation = default)
+        int batchSize = 1000,
+        string? updateCondition = null,
+        CancellationToken cancellation = default)
     {
         var bulkInsertion = new BulkInsertion(Tenancy.Default, Options);
-        return bulkInsertion.BulkInsertEnlistTransactionAsync(documents, transaction, mode, batchSize, cancellation);
+        return bulkInsertion.BulkInsertEnlistTransactionAsync(documents, transaction, mode, batchSize, updateCondition, cancellation);
     }
 
-    public async Task BulkInsertAsync<T>(string tenantId, IReadOnlyCollection<T> documents,
-        BulkInsertMode mode = BulkInsertMode.InsertsOnly, int batchSize = 1000,
+    public async Task BulkInsertAsync<T>(
+        string tenantId,
+        IReadOnlyCollection<T> documents,
+        BulkInsertMode mode = BulkInsertMode.InsertsOnly,
+        int batchSize = 1000,
+        string? updateCondition = null,
         CancellationToken cancellation = default)
     {
         var bulkInsertion = new BulkInsertion(await Tenancy.GetTenantAsync(Options.MaybeCorrectTenantId(tenantId)).ConfigureAwait(false), Options);
-        await bulkInsertion.BulkInsertAsync(documents, mode, batchSize, cancellation).ConfigureAwait(false);
+        await bulkInsertion.BulkInsertAsync(documents, mode, batchSize, updateCondition, cancellation).ConfigureAwait(false);
     }
 
     public Task BulkInsertDocumentsAsync(IEnumerable<object> documents,

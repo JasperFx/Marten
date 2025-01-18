@@ -51,8 +51,8 @@ public class SubClassBulkLoader<T, TRoot>: IBulkLoader<T> where T : TRoot
         return _inner.CopyNewDocumentsFromTempTable();
     }
 
-    public string OverwriteDuplicatesFromTempTable()
+    public string UpsertFromTempTable()
     {
-        return _inner.OverwriteDuplicatesFromTempTable();
+        return _inner.UpsertFromTempTable();
     }
 }

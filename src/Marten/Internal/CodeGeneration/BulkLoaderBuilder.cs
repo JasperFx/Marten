@@ -52,8 +52,8 @@ public class BulkLoaderBuilder
         type.MethodFor(nameof(CopyNewDocumentsFromTempTable))
             .Frames.ReturnNewStringConstant("COPY_NEW_DOCUMENTS_SQL", CopyNewDocumentsFromTempTable());
 
-        type.MethodFor(nameof(OverwriteDuplicatesFromTempTable))
-            .Frames.ReturnNewStringConstant("OVERWRITE_SQL", OverwriteDuplicatesFromTempTable());
+        type.MethodFor(nameof(UpsertFromTempTable))
+            .Frames.ReturnNewStringConstant("UPSERT_SQL", UpsertFromTempTable());
 
         type.MethodFor(nameof(CreateTempTableForCopying))
             .Frames.ReturnNewStringConstant("CREATE_TEMP_TABLE_FOR_COPYING_SQL",
@@ -98,32 +98,41 @@ public class BulkLoaderBuilder
         var selectColumns = table.Columns.Where(x => x.Name != SchemaConstants.LastModifiedColumn)
             .Select(x => $"{_tempTable}.\\\"{x.Name}\\\"").Join(", ");
 
-        var joinExpression = isMultiTenanted
-            ? $"{_tempTable}.id = {storageTable}.id and {_tempTable}.tenant_id = {storageTable}.tenant_id"
-            : $"{_tempTable}.id = {storageTable}.id";
+        var conflictColumns = isMultiTenanted
+            ? "tenant_id, id"
+            : "id";
 
         return
             $"insert into {storageTable} ({columns}, {SchemaConstants.LastModifiedColumn}) " +
-            $"(select {selectColumns}, transaction_timestamp() " +
-            $"from {_tempTable} left join {storageTable} on {joinExpression} " +
-            $"where {storageTable}.id is null)";
+            $"select {selectColumns}, transaction_timestamp() " +
+            $"from {_tempTable} " +
+            $"on conflict ({conflictColumns}) do nothing";
     }
 
-    public string OverwriteDuplicatesFromTempTable()
+    public string UpsertFromTempTable()
     {
         var table = _mapping.Schema.Table;
         var isMultiTenanted = _mapping.TenancyStyle == TenancyStyle.Conjoined;
         var storageTable = table.Identifier.QualifiedName;
 
+        var columns = table.Columns.Where(x => x.Name != SchemaConstants.LastModifiedColumn)
+            .Select(x => $"\\\"{x.Name}\\\"").Join(", ");
+        var selectColumns = table.Columns.Where(x => x.Name != SchemaConstants.LastModifiedColumn)
+            .Select(x => $"{_tempTable}.\\\"{x.Name}\\\"").Join(", ");
         var updates = table.Columns.Where(x => x.Name != "id" && x.Name != SchemaConstants.LastModifiedColumn)
-            .Select(x => $"{x.Name} = source.{x.Name}").Join(", ");
+            .Select(x => $"{x.Name} = excluded.{x.Name}").Join(", ");
 
-        var joinExpression = isMultiTenanted
-            ? "source.id = target.id and source.tenant_id = target.tenant_id"
-            : "source.id = target.id";
+        var conflictColumns = isMultiTenanted
+            ? "tenant_id, id"
+            : "id";
 
         return
-            $"update {storageTable} target SET {updates}, {SchemaConstants.LastModifiedColumn} = transaction_timestamp() FROM {_tempTable} source WHERE {joinExpression}";
+            $"insert into {storageTable} as d ({columns}, {SchemaConstants.LastModifiedColumn}) " +
+            $"select {selectColumns}, transaction_timestamp() " +
+            $"from {_tempTable} " +
+            $"on conflict ({conflictColumns}) do update " +
+            $"set {updates}, {SchemaConstants.LastModifiedColumn} = excluded.{SchemaConstants.LastModifiedColumn} " +
+            "where ( {0} )";
     }
 
     public string CreateTempTableForCopying()

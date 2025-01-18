@@ -87,6 +87,62 @@ public class bulk_loading_Tests : OneOffConfigurationsContext, IAsyncLifetime
     }
 
     [Fact]
+    public void load_with_overwrite_duplicates_and_update_condition()
+    {
+        var data1 = Target.GenerateRandomData(30)
+            .Select(t => t with { Number = 100, String = "initial insert" })
+            .ToArray();
+        theStore.BulkInsert(data1);
+
+        var data2 = data1.Take(20)
+            .Select((t, i) => t with { Number = i < 10 ? 50 : 150, String = "second insert" })
+            .ToArray();
+
+        #region sample_BulkInsertWithUpdateCondition
+
+        // perform a bulk insert of `Target` documents
+        // but only overwrite existing if the existing document's "Number"
+        // property is less then the new document's
+        await theStore.BulkInsertAsync(
+            data2,
+            BulkInsertMode.OverwriteExisting,
+            updateCondition: "(d.data ->> 'Number')::int <= (excluded.data ->> 'Number')::int");
+
+        #endregion
+
+        using var session = theStore.QuerySession();
+        session.Query<Target>().Count().ShouldBe(data1.Length);
+
+        // Values were overwritten
+        session.Query<Target>().Count(t => t.Number == 100 && t.String == "initial insert").ShouldBe(20);
+        session.Query<Target>().Count(t => t.Number == 150 && t.String == "second insert").ShouldBe(10);
+        session.Query<Target>().Count(t => t.Number == 50).ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task load_with_overwrite_duplicates_and_update_condition_async()
+    {
+        var data1 = Target.GenerateRandomData(30)
+            .Select(t => t with { Number = 100, String = "initial insert" })
+            .ToArray();
+        await theStore.BulkInsertAsync(data1);
+
+        var data2 = data1.Take(20)
+            .Select((t, i) => t with { Number = i < 10 ? 50 : 150, String = "second insert" })
+            .ToArray();
+
+        await theStore.BulkInsertAsync(data2, BulkInsertMode.OverwriteExisting, updateCondition: "(d.data ->> 'Number')::int <= (excluded.data ->> 'Number')::int");
+
+        await using var session = theStore.QuerySession();
+        (await session.Query<Target>().CountAsync()).ShouldBe(data1.Length);
+
+        // Values were overwritten
+        (await session.Query<Target>().CountAsync(t => t.Number == 100 && t.String == "initial insert")).ShouldBe(20);
+        (await session.Query<Target>().CountAsync(t => t.Number == 150 && t.String == "second insert")).ShouldBe(10);
+        (await session.Query<Target>().Count(t => t.Number == 50)).ShouldBe(0);
+    }
+
+    [Fact]
     public void load_with_small_batch()
     {
         #region sample_using_bulk_insert
