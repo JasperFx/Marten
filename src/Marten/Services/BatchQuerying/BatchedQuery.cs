@@ -59,7 +59,12 @@ internal class BatchedQuery: IBatchedQuery, IBatchEvents
 
     public Task<IReadOnlyList<T>> Query<T>(string sql, params object[] parameters) where T : class
     {
-        var handler = new UserSuppliedQueryHandler<T>(Parent, sql, parameters);
+        return Query<T>(QuerySession.DefaultParameterPlaceholder, sql, parameters);
+    }
+
+    public Task<IReadOnlyList<T>> Query<T>(char placeholder, string sql, params object[] parameters) where T : class
+    {
+        var handler = new UserSuppliedQueryHandler<T>(Parent, placeholder, sql, parameters);
         if (!handler.SqlContainsCustomSelect)
         {
             _documentTypes.Add(typeof(T));

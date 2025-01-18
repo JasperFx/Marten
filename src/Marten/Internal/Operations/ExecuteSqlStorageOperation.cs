@@ -12,17 +12,19 @@ namespace Marten.Internal.Operations;
 internal class ExecuteSqlStorageOperation: IStorageOperation, NoDataReturnedCall
 {
     private readonly string _commandText;
+    private readonly char _placeholder;
     private readonly object[] _parameterValues;
 
-    public ExecuteSqlStorageOperation(string commandText, params object[] parameterValues)
+    public ExecuteSqlStorageOperation(char placeholder, string commandText, params object[] parameterValues)
     {
         _commandText = commandText.TrimEnd(';');
+        _placeholder = placeholder;
         _parameterValues = parameterValues;
     }
 
     public void ConfigureCommand(ICommandBuilder builder, IMartenSession session)
     {
-        var parameters = builder.AppendWithParameters(_commandText);
+        var parameters = builder.AppendWithParameters(_commandText, _placeholder);
         if (parameters.Length != _parameterValues.Length)
         {
             throw new InvalidOperationException(

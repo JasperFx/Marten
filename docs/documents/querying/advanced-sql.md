@@ -139,6 +139,19 @@ results[1].detail.Detail.ShouldBe("Likes to cook");
 <sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/advanced_sql_query.cs#L101-L138' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_advanced_sql_query_related_documents_and_scalar' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
+All `AdvancedSql` methods also support parameters:
+
+<!-- snippet: sample_document_schema_resolver_resolve_schemas -->
+<a id='snippet-sample_document_schema_resolver_resolve_schemas'></a>
+```cs
+var schema = theSession.DocumentStore.Options.Schema;
+
+schema.DatabaseSchemaName.ShouldBe("public");
+schema.EventsSchemaName.ShouldBe("public");
+```
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/CoreTests/DocumentSchemaResolverTests.cs#L24-L29' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_document_schema_resolver_resolve_schemas' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
 For sync queries you can use the `AdvancedSql.Query<T>(...)` overloads.
 
 When you need to query for large datasets, the `AdvancedSql.StreamAsync<>(...)` methods can be used. They will return
@@ -182,7 +195,7 @@ await foreach (var result in asyncEnumerable)
     collectedResults.Add(result);
 }
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/advanced_sql_query.cs#L145-L180' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_advanced_sql_stream_related_documents_and_scalar' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/advanced_sql_query.cs#L173-L208' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_advanced_sql_stream_related_documents_and_scalar' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Using this you can resolve schemas:

@@ -17,6 +17,8 @@ public partial class QuerySession: IMartenSession, IQuerySession
     public const string SynchronousRemoval =
         "All synchronous APIs that result in database calls will be removed in Marten 8.0. Please use the asynchronous equivalent";
 
+    internal const char DefaultParameterPlaceholder = '?';
+
     private readonly DocumentStore _store;
     private readonly ResiliencePipeline _resilience;
 

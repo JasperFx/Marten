@@ -18,14 +18,16 @@ namespace Marten.Linq.QueryHandlers;
 
 internal class UserSuppliedQueryHandler<T>: IQueryHandler<IReadOnlyList<T>>
 {
+    private readonly char _placeholder;
     private readonly object[] _parameters;
     private readonly ISelectClause _selectClause;
     private readonly ISelector<T> _selector;
     private readonly string _sql;
 
-    public UserSuppliedQueryHandler(IMartenSession session, string sql, object[] parameters)
+    public UserSuppliedQueryHandler(IMartenSession session, char placeholder, string sql, object[] parameters)
     {
         _sql = sql.TrimStart();
+        _placeholder = placeholder;
         _parameters = parameters;
         SqlContainsCustomSelect = _sql.StartsWith("select", StringComparison.OrdinalIgnoreCase)
                                   || IsWithFollowedBySelect(_sql);
@@ -63,7 +65,7 @@ internal class UserSuppliedQueryHandler<T>: IQueryHandler<IReadOnlyList<T>>
         }
         else
         {
-            var cmdParameters = builder.AppendWithParameters(_sql);
+            var cmdParameters = builder.AppendWithParameters(_sql, _placeholder);
             if (cmdParameters.Length != _parameters.Length)
             {
                 throw new InvalidOperationException("Wrong number of supplied parameters");

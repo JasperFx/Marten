@@ -18,7 +18,7 @@ namespace Marten.Linq.QueryHandlers;
 
 internal class AdvancedSqlQueryHandler<T>: AdvancedSqlQueryHandlerBase<T>, IQueryHandler<IReadOnlyList<T>>
 {
-    public AdvancedSqlQueryHandler(IMartenSession session, string sql, object[] parameters):base(sql, parameters)
+    public AdvancedSqlQueryHandler(IMartenSession session, char placeholder, string sql, object[] parameters): base(placeholder, sql, parameters)
     {
         RegisterResultType<T>(session);
     }
@@ -46,7 +46,7 @@ internal class AdvancedSqlQueryHandler<T>: AdvancedSqlQueryHandlerBase<T>, IQuer
 
 internal class AdvancedSqlQueryHandler<T1, T2>: AdvancedSqlQueryHandlerBase<(T1, T2)>, IQueryHandler<IReadOnlyList<(T1, T2)>>
 {
-    public AdvancedSqlQueryHandler(IMartenSession session, string sql, object[] parameters) : base(sql, parameters)
+    public AdvancedSqlQueryHandler(IMartenSession session, char placeholder, string sql, object[] parameters) : base(placeholder, sql, parameters)
     {
         RegisterResultType<T1>(session);
         RegisterResultType<T2>(session);
@@ -77,7 +77,7 @@ internal class AdvancedSqlQueryHandler<T1, T2>: AdvancedSqlQueryHandlerBase<(T1,
 }
 internal class AdvancedSqlQueryHandler<T1, T2, T3>: AdvancedSqlQueryHandlerBase<(T1, T2, T3)>, IQueryHandler<IReadOnlyList<(T1, T2, T3)>>
 {
-    public AdvancedSqlQueryHandler(IMartenSession session, string sql, object[] parameters) : base(sql, parameters)
+    public AdvancedSqlQueryHandler(IMartenSession session, char placeholder, string sql, object[] parameters) : base(placeholder, sql, parameters)
     {
         RegisterResultType<T1>(session);
         RegisterResultType<T2>(session);
@@ -112,13 +112,15 @@ internal class AdvancedSqlQueryHandler<T1, T2, T3>: AdvancedSqlQueryHandlerBase<
 
 internal abstract class AdvancedSqlQueryHandlerBase<TResult>
 {
+    protected readonly char Placeholder;
     protected readonly object[] Parameters;
     protected readonly string Sql;
     protected List<ISelector> Selectors = new();
 
-    protected AdvancedSqlQueryHandlerBase(string sql, object[] parameters)
+    protected AdvancedSqlQueryHandlerBase(char placeholder, string sql, object[] parameters)
     {
         Sql = sql.TrimStart();
+        Placeholder = placeholder;
         Parameters = parameters;
     }
 
@@ -135,7 +137,7 @@ internal abstract class AdvancedSqlQueryHandlerBase<TResult>
         }
         else
         {
-            var cmdParameters = builder.AppendWithParameters(Sql);
+            var cmdParameters = builder.AppendWithParameters(Sql, Placeholder);
             if (cmdParameters.Length != Parameters.Length)
             {
                 throw new InvalidOperationException("Wrong number of supplied parameters");

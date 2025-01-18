@@ -35,7 +35,7 @@ public partial class QuerySession
     {
         assertNotDisposed();
 
-        var handler = new UserSuppliedQueryHandler<T>(this, sql, parameters);
+        var handler = new UserSuppliedQueryHandler<T>(this, DefaultParameterPlaceholder, sql, parameters);
 
         if (!handler.SqlContainsCustomSelect)
         {
@@ -46,11 +46,16 @@ public partial class QuerySession
         return provider.ExecuteHandler(handler);
     }
 
-    public async Task<IReadOnlyList<T>> QueryAsync<T>(string sql, CancellationToken token, params object[] parameters)
+    public Task<IReadOnlyList<T>> QueryAsync<T>(string sql, CancellationToken token, params object[] parameters)
+    {
+        return QueryAsync<T>(DefaultParameterPlaceholder, sql, token, parameters);
+    }
+
+    public async Task<IReadOnlyList<T>> QueryAsync<T>(char placeholder, string sql, CancellationToken token, params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new UserSuppliedQueryHandler<T>(this, sql, parameters);
+        var handler = new UserSuppliedQueryHandler<T>(this, placeholder, sql, parameters);
 
         if (!handler.SqlContainsCustomSelect)
         {
@@ -64,6 +69,11 @@ public partial class QuerySession
     public Task<IReadOnlyList<T>> QueryAsync<T>(string sql, params object[] parameters)
     {
         return QueryAsync<T>(sql, CancellationToken.None, parameters);
+    }
+
+    public Task<IReadOnlyList<T>> QueryAsync<T>(char placeholder, string sql, params object[] parameters)
+    {
+        return QueryAsync<T>(placeholder, sql, CancellationToken.None, parameters);
     }
 
     // TODO -- Obsolete, remove in 8.0, replaced by AdvancedSql.Query*

@@ -10,11 +10,16 @@ namespace Marten.Internal.Sessions;
 
 public partial class QuerySession: IAdvancedSql
 {
-    async Task<IReadOnlyList<T>> IAdvancedSql.QueryAsync<T>(string sql, CancellationToken token, params object[] parameters)
+    Task<IReadOnlyList<T>> IAdvancedSql.QueryAsync<T>(string sql, CancellationToken token, params object[] parameters)
+    {
+        return ((IAdvancedSql)this).QueryAsync<T>(DefaultParameterPlaceholder, sql, token, parameters);
+    }
+
+    async Task<IReadOnlyList<T>> IAdvancedSql.QueryAsync<T>(char placeholder, string sql, CancellationToken token, params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T>(this, placeholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -25,11 +30,16 @@ public partial class QuerySession: IAdvancedSql
         return await provider.ExecuteHandlerAsync(handler, token).ConfigureAwait(false);
     }
 
-    async Task<IReadOnlyList<(T1, T2)>> IAdvancedSql.QueryAsync<T1, T2>(string sql, CancellationToken token, params object[] parameters)
+    Task<IReadOnlyList<(T1, T2)>> IAdvancedSql.QueryAsync<T1, T2>(string sql, CancellationToken token, params object[] parameters)
+    {
+        return ((IAdvancedSql)this).QueryAsync<T1, T2>(DefaultParameterPlaceholder, sql, token, parameters);
+    }
+
+    async Task<IReadOnlyList<(T1, T2)>> IAdvancedSql.QueryAsync<T1, T2>(char placeholder, string sql, CancellationToken token, params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T1, T2>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T1, T2>(this, placeholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -40,11 +50,16 @@ public partial class QuerySession: IAdvancedSql
         return await provider.ExecuteHandlerAsync(handler, token).ConfigureAwait(false);
     }
 
-    async Task<IReadOnlyList<(T1, T2, T3)>> IAdvancedSql.QueryAsync<T1, T2, T3>(string sql, CancellationToken token, params object[] parameters)
+    Task<IReadOnlyList<(T1, T2, T3)>> IAdvancedSql.QueryAsync<T1, T2, T3>(string sql, CancellationToken token, params object[] parameters)
+    {
+        return ((IAdvancedSql)this).QueryAsync<T1, T2, T3>(DefaultParameterPlaceholder, sql, token, parameters);
+    }
+
+    async Task<IReadOnlyList<(T1, T2, T3)>> IAdvancedSql.QueryAsync<T1, T2, T3>(char placeholder, string sql, CancellationToken token, params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T1, T2, T3>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T1, T2, T3>(this, placeholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -59,7 +74,7 @@ public partial class QuerySession: IAdvancedSql
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T>(this, DefaultParameterPlaceholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -74,7 +89,7 @@ public partial class QuerySession: IAdvancedSql
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T1, T2>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T1, T2>(this, DefaultParameterPlaceholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -89,7 +104,7 @@ public partial class QuerySession: IAdvancedSql
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T1, T2, T3>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T1, T2, T3>(this, DefaultParameterPlaceholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -100,12 +115,15 @@ public partial class QuerySession: IAdvancedSql
         return provider.ExecuteHandler(handler);
     }
 
-    async IAsyncEnumerable<T> IAdvancedSql.StreamAsync<T>(string sql, [EnumeratorCancellation] CancellationToken token,
+    IAsyncEnumerable<T> IAdvancedSql.StreamAsync<T>(string sql, CancellationToken token, params object[] parameters)
+        => ((IAdvancedSql)this).StreamAsync<T>(DefaultParameterPlaceholder, sql, token, parameters);
+
+    async IAsyncEnumerable<T> IAdvancedSql.StreamAsync<T>(char placeholder, string sql, [EnumeratorCancellation] CancellationToken token,
         params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T>(this, placeholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -121,12 +139,17 @@ public partial class QuerySession: IAdvancedSql
         }
     }
 
-    async IAsyncEnumerable<(T1, T2)> IAdvancedSql.StreamAsync<T1, T2>(string sql, [EnumeratorCancellation] CancellationToken token,
+    IAsyncEnumerable<(T1, T2)> IAdvancedSql.StreamAsync<T1, T2>(string sql, CancellationToken token, params object[] parameters)
+    {
+        return ((IAdvancedSql)this).StreamAsync<T1, T2>(DefaultParameterPlaceholder, sql, token, parameters);
+    }
+
+    async IAsyncEnumerable<(T1, T2)> IAdvancedSql.StreamAsync<T1, T2>(char placeholder, string sql, [EnumeratorCancellation] CancellationToken token,
         params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T1, T2>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T1, T2>(this, placeholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {
@@ -142,12 +165,17 @@ public partial class QuerySession: IAdvancedSql
         }
     }
 
-    async IAsyncEnumerable<(T1, T2, T3)> IAdvancedSql.StreamAsync<T1, T2, T3>(string sql, [EnumeratorCancellation] CancellationToken token,
+    IAsyncEnumerable<(T1, T2, T3)> IAdvancedSql.StreamAsync<T1, T2, T3>(string sql, CancellationToken token, params object[] parameters)
+    {
+        return ((IAdvancedSql)this).StreamAsync<T1, T2, T3>(DefaultParameterPlaceholder, sql, token, parameters);
+    }
+
+    async IAsyncEnumerable<(T1, T2, T3)> IAdvancedSql.StreamAsync<T1, T2, T3>(char placeholder, string sql, [EnumeratorCancellation] CancellationToken token,
         params object[] parameters)
     {
         assertNotDisposed();
 
-        var handler = new AdvancedSqlQueryHandler<T1, T2, T3>(this, sql, parameters);
+        var handler = new AdvancedSqlQueryHandler<T1, T2, T3>(this, placeholder, sql, parameters);
 
         foreach (var documentType in handler.DocumentTypes)
         {

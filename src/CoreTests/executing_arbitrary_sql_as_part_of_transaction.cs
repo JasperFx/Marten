@@ -44,6 +44,8 @@ public class executing_arbitrary_sql_as_part_of_transaction : OneOffConfiguratio
         theSession.Store(Target.Random());
         var json = "{ \"answer\": 42 }";
         theSession.QueueSqlCommand("insert into data (raw_value) values (?::jsonb)", json);
+        // Use ^ as the parameter placeholder
+        theSession.QueueSqlCommand('^', "insert into data (raw_value) values (^::jsonb)", json);
         #endregion
 
         await theSession.SaveChangesAsync();

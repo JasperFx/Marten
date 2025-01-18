@@ -114,6 +114,17 @@ public interface IBatchedQuery
     Task<IReadOnlyList<T>> Query<T>(string sql, params object[] parameters) where T : class;
 
     /// <summary>
+    ///     Execute a user provided query against "T".
+    ///      Use <paramref name="placeholder"/> to specify a character that will be replaced by positional parameters.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="placeholder"></param>
+    /// <param name="sql"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    Task<IReadOnlyList<T>> Query<T>(char placeholder, string sql, params object[] parameters) where T : class;
+
+    /// <summary>
     ///     Execute this batched query
     /// </summary>
     /// <param name="token"></param>

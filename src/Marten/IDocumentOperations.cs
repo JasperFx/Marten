@@ -233,6 +233,15 @@ public interface IDocumentOperations: IQuerySession
     void QueueSqlCommand(string sql, params object[] parameterValues);
 
     /// <summary>
+    ///     Registers a SQL command to be executed with the underlying unit of work as part of the batched command.
+    ///     Use <paramref name="placeholder"/> to specify a character that will be replaced by positional parameters.
+    /// </summary>
+    /// <param name="placeholder"></param>
+    /// <param name="sql"></param>
+    /// <param name="parameterValues"></param>
+    void QueueSqlCommand(char placeholder, string sql, params object[] parameterValues);
+
+    /// <summary>
     /// In the case of a lightweight session, this will direct Marten to opt into identity map mechanics
     /// for only the document type T. This is a micro-optimization added for the event sourcing + projections
     /// support

@@ -16,6 +16,10 @@ public class MatchesSqlParser: IMethodCallParser
         typeof(MatchesSqlExtensions).GetMethod(nameof(MatchesSqlExtensions.MatchesSql),
             new[] { typeof(object), typeof(string), typeof(object[]) })!;
 
+    private static readonly MethodInfo _sqlMethodWithPlaceholder =
+        typeof(MatchesSqlExtensions).GetMethod(nameof(MatchesSqlExtensions.MatchesSql),
+            new[] { typeof(object), typeof(char), typeof(string), typeof(object[]) })!;
+
     private static readonly MethodInfo _fragmentMethod =
         typeof(MatchesSqlExtensions).GetMethod(nameof(MatchesSqlExtensions.MatchesSql),
             new[] { typeof(object), typeof(ISqlFragment) })!;
@@ -32,6 +36,13 @@ public class MatchesSqlParser: IMethodCallParser
         {
             return new WhereFragment(expression.Arguments[1].Value().As<string>(),
                 expression.Arguments[2].Value().As<object[]>());
+        }
+
+        if (expression.Method.Equals(_sqlMethodWithPlaceholder))
+        {
+            return new CustomizableWhereFragment(expression.Arguments[1].Value().As<string>(),
+                expression.Arguments[2].Value().As<char>().ToString(),
+                expression.Arguments[3].Value().As<object[]>());
         }
 
         if (expression.Method.Equals(_fragmentMethod))

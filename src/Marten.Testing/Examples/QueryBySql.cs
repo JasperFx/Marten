@@ -15,12 +15,16 @@ public class QueryBySql
         #endregion
     }
 
-    public void QueryWithParameters(IQuerySession session)
+    public async Task QueryWithParameters(IQuerySession session)
     {
         #region sample_query_with_sql_and_parameters
 
         var millers = session
             .Query<User>("where data ->> 'LastName' = ?", "Miller");
+
+        // custom placeholder parameter
+        var millers2 = await session
+            .QueryAsync<User>('$', "where data ->> 'LastName' = $", "Miller");
 
         #endregion
     }

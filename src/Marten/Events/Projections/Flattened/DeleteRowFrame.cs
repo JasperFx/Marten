@@ -19,8 +19,12 @@ internal class DeleteRowFrame: MethodCall, IEventHandlingFrame
     private readonly Table _table;
     private Variable? _event;
 
+    private static readonly MethodInfo QueueSqlMethod =
+        typeof(IDocumentOperations).GetMethod(nameof(IDocumentOperations.QueueSqlCommand),
+            [typeof(string), typeof(object[])])!;
+
     public DeleteRowFrame(Table table, Type eventType, MemberInfo[] members): base(typeof(IDocumentOperations),
-        nameof(IDocumentOperations.QueueSqlCommand))
+        QueueSqlMethod)
     {
         if (!members.Any())
         {

@@ -184,6 +184,7 @@ public interface IQuerySession: IDisposable, IAsyncDisposable
     /// <param name="sql"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
+    [Obsolete(QuerySession.SynchronousRemoval)]
     IReadOnlyList<T> Query<T>(string sql, params object[] parameters);
 
     /// <summary>
@@ -198,6 +199,19 @@ public interface IQuerySession: IDisposable, IAsyncDisposable
     Task<int> StreamJson<T>(Stream destination, CancellationToken token, string sql, params object[] parameters);
 
     /// <summary>
+    ///     Stream the results of a user-supplied query directly to a stream as a JSON array.
+    ///     Use <paramref name="placeholder"/> to specify a character that will be replaced by positional parameters.
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <param name="token"></param>
+    /// <param name="placeholder"></param>
+    /// <param name="sql"></param>
+    /// <param name="parameters"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    Task<int> StreamJson<T>(Stream destination, CancellationToken token, char placeholder, string sql, params object[] parameters);
+
+    /// <summary>
     ///     Stream the results of a user-supplied query directly to a stream as a JSON array
     /// </summary>
     /// <param name="destination"></param>
@@ -206,6 +220,18 @@ public interface IQuerySession: IDisposable, IAsyncDisposable
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     Task<int> StreamJson<T>(Stream destination, string sql, params object[] parameters);
+
+    /// <summary>
+    ///     Stream the results of a user-supplied query directly to a stream as a JSON array.
+    ///     Use <paramref name="placeholder"/> to specify a character that will be replaced by positional parameters.
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <param name="placeholder"></param>
+    /// <param name="sql"></param>
+    /// <param name="parameters"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    Task<int> StreamJson<T>(Stream destination, char placeholder, string sql, params object[] parameters);
 
     /// <summary>
     ///     Asynchronously queries the document storage table for the document type T by supplied SQL. See
@@ -221,12 +247,37 @@ public interface IQuerySession: IDisposable, IAsyncDisposable
     /// <summary>
     ///     Asynchronously queries the document storage table for the document type T by supplied SQL. See
     ///     https://martendb.io/documents/querying/sql.html for more information on usage.
+    ///     Use <paramref name="placeholder"/> to specify a character that will be replaced by positional parameters.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="placeholder"></param>
+    /// <param name="sql"></param>
+    /// <param name="token"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    Task<IReadOnlyList<T>> QueryAsync<T>(char placeholder, string sql, CancellationToken token, params object[] parameters);
+
+    /// <summary>
+    ///     Asynchronously queries the document storage table for the document type T by supplied SQL. See
+    ///     https://martendb.io/documents/querying/sql.html for more information on usage.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="sql"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
     Task<IReadOnlyList<T>> QueryAsync<T>(string sql, params object[] parameters);
+
+    /// <summary>
+    ///     Asynchronously queries the document storage table for the document type T by supplied SQL. See
+    ///     https://martendb.io/documents/querying/sql.html for more information on usage.
+    ///     Use <paramref name="placeholder"/> to specify a character that will be replaced by positional parameters.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="placeholder"></param>
+    /// <param name="sql"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    Task<IReadOnlyList<T>> QueryAsync<T>(char placeholder, string sql, params object[] parameters);
 
     /// <summary>
     ///     Asynchronously queries the document storage with the supplied SQL.
