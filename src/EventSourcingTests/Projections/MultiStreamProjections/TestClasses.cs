@@ -136,3 +136,31 @@ public class UserGroupsAssignment
 }
 
 #endregion
+
+
+// Notification example
+public class Notification
+{
+    public string Id { get; set; }
+    public string Title { get; set; }
+    public string Content { get; set; }
+
+    public Notification(string id, string title, string content)
+    {
+        Id = id;
+        Title = title;
+        Content = content;
+    }
+}
+
+public class UserNotification
+{
+    public string Id { get; set; }
+    public string UserId { get; set; }
+    public string NotificationId { get; set; }
+    public bool isOpened { get; set; }
+}
+
+// Notification events
+public record SendNotificationToUsers(Notification Notification, List<string> UserIds);
+public record UserOpenedNotification(string NotificationId, string UserId);
