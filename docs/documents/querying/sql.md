@@ -15,7 +15,7 @@ Here's the simplest possible usage to query for `User` documents with a `WHERE` 
 var millers = session
     .Query<User>("where data ->> 'LastName' = 'Miller'");
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/QueryBySql.cs#L10-L15' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_for_whole_document_by_where_clause' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/QueryBySql.cs#L11-L16' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_for_whole_document_by_where_clause' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Or with parameterized SQL:
@@ -23,10 +23,25 @@ Or with parameterized SQL:
 <!-- snippet: sample_query_with_sql_and_parameters -->
 <a id='snippet-sample_query_with_sql_and_parameters'></a>
 ```cs
+// pass in a list of anonymous parameters
 var millers = session
     .Query<User>("where data ->> 'LastName' = ?", "Miller");
+
+// pass in named parameters using an anonymous object
+var params1 = new { First = "Jeremy", Last = "Miller" };
+var jeremysAndMillers1 = session
+    .Query<User>("where data ->> 'FirstName' = @First or data ->> 'LastName' = @Last", params1);
+
+// pass in named parameters using a dictionary
+var params2 = new Dictionary<string, object>
+{
+    { "First", "Jeremy" },
+    { "Last", "Miller" }
+};
+var jeremysAndMillers2 = session
+    .Query<User>("where data ->> 'FirstName' = @First or data ->> 'LastName' = @Last", params2);
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/QueryBySql.cs#L20-L25' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_with_sql_and_parameters' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/QueryBySql.cs#L21-L41' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_with_sql_and_parameters' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 And finally asynchronously:
@@ -37,7 +52,7 @@ And finally asynchronously:
 var millers = await session
     .QueryAsync<User>("where data ->> 'LastName' = ?", "Miller");
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/QueryBySql.cs#L30-L35' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_with_sql_async' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/Marten.Testing/Examples/QueryBySql.cs#L46-L51' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_with_sql_async' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 All of the samples so far are selecting the whole `User` document and merely supplying
@@ -50,7 +65,7 @@ a document body, but in that case you will need to supply the full SQL statement
 var sumResults = await session
     .QueryAsync<int>("select count(*) from mt_doc_target");
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/query_by_sql.cs#L376-L381' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_by_full_sql' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/query_by_sql.cs#L395-L400' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_query_by_full_sql' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 When querying single JSONB properties into a primitive/value type, you'll need to cast the value to the respective postgres type:
@@ -61,7 +76,7 @@ When querying single JSONB properties into a primitive/value type, you'll need t
 var times = await session.QueryAsync<DateTimeOffset>(
     "SELECT (data ->> 'ModifiedAt')::timestamptz from mt_doc_user");
 ```
-<sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/query_by_sql.cs#L330-L335' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_using-queryasync-casting' title='Start of snippet'>anchor</a></sup>
+<sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/Reading/query_by_sql.cs#L349-L354' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_using-queryasync-casting' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 The basic rules for how Marten handles user-supplied queries are:

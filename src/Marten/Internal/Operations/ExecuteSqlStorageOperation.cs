@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using JasperFx.Core.Reflection;
 using Marten.Services;
 using Marten.Storage;
 using Weasel.Postgresql;
@@ -22,6 +24,13 @@ internal class ExecuteSqlStorageOperation: IStorageOperation, NoDataReturnedCall
 
     public void ConfigureCommand(ICommandBuilder builder, IMartenSession session)
     {
+        if (_parameterValues is [{ } first] && (first.IsAnonymousType() || first is IDictionary { Keys: ICollection<string> }))
+        {
+            builder.Append(_commandText);
+            builder.AddParameters(first);
+            return;
+        }
+
         var parameters = builder.AppendWithParameters(_commandText);
         if (parameters.Length != _parameterValues.Length)
         {

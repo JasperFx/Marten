@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Marten.Linq.MatchesSql;
@@ -19,7 +20,7 @@ public class matches_sql_queries: IntegrationContext
         var user3 = new User { UserName = "baz" };
         var user4 = new User { UserName = "jack" };
 
-        using var session = theStore.LightweightSession();
+        await using var session = theStore.LightweightSession();
         session.Store(user1, user2, user3, user4);
         await session.SaveChangesAsync();
 
@@ -43,7 +44,7 @@ public class matches_sql_queries: IntegrationContext
         var user3 = new User { UserName = "baz" };
         var user4 = new User { UserName = "jack" };
 
-        using var session = theStore.LightweightSession();
+        await using var session = theStore.LightweightSession();
         session.Store(user1, user2, user3, user4);
         await session.SaveChangesAsync();
 

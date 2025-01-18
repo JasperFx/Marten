@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -53,34 +54,30 @@ internal class UserSuppliedQueryHandler<T>: IQueryHandler<IReadOnlyList<T>>
             }
         }
 
-
-        var firstParameter = _parameters.FirstOrDefault();
-
-        if (_parameters.Length == 1 && firstParameter != null && firstParameter.IsAnonymousType())
+        if (_parameters is [{ } first] && (first.IsAnonymousType() || first is IDictionary { Keys: ICollection<string> }))
         {
             builder.Append(_sql);
-            builder.AddParameters(firstParameter);
+            builder.AddParameters(first);
+            return;
         }
-        else
-        {
-            var cmdParameters = builder.AppendWithParameters(_sql);
-            if (cmdParameters.Length != _parameters.Length)
-            {
-                throw new InvalidOperationException("Wrong number of supplied parameters");
-            }
 
-            for (var i = 0; i < cmdParameters.Length; i++)
+        var cmdParameters = builder.AppendWithParameters(_sql);
+        if (cmdParameters.Length != _parameters.Length)
+        {
+            throw new InvalidOperationException("Wrong number of supplied parameters");
+        }
+
+        for (var i = 0; i < cmdParameters.Length; i++)
+        {
+            if (_parameters[i] == null!)
             {
-                if (_parameters[i] == null!)
-                {
-                    cmdParameters[i].Value = DBNull.Value;
-                }
-                else
-                {
-                    cmdParameters[i].Value = _parameters[i];
-                    cmdParameters[i].NpgsqlDbType =
-                        PostgresqlProvider.Instance.ToParameterType(_parameters[i].GetType());
-                }
+                cmdParameters[i].Value = DBNull.Value;
+            }
+            else
+            {
+                cmdParameters[i].Value = _parameters[i];
+                cmdParameters[i].NpgsqlDbType =
+                    PostgresqlProvider.Instance.ToParameterType(_parameters[i].GetType());
             }
         }
     }

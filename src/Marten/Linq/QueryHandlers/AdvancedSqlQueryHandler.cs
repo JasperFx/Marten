@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -128,7 +129,7 @@ internal abstract class AdvancedSqlQueryHandlerBase<TResult>
     {
         var firstParameter = Parameters.FirstOrDefault();
 
-        if (Parameters.Length == 1 && firstParameter != null && firstParameter.IsAnonymousType())
+        if (Parameters.Length == 1 && firstParameter != null && firstParameter.IsAnonymousType() || firstParameter is IDictionary { Keys: ICollection<string> })
         {
             builder.Append(Sql);
             builder.AddParameters(firstParameter);

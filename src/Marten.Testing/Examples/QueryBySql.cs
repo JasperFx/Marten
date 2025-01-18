@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Marten.Testing.Documents;
 
@@ -19,8 +20,23 @@ public class QueryBySql
     {
         #region sample_query_with_sql_and_parameters
 
+        // pass in a list of anonymous parameters
         var millers = session
             .Query<User>("where data ->> 'LastName' = ?", "Miller");
+
+        // pass in named parameters using an anonymous object
+        var params1 = new { First = "Jeremy", Last = "Miller" };
+        var jeremysAndMillers1 = session
+            .Query<User>("where data ->> 'FirstName' = @First or data ->> 'LastName' = @Last", params1);
+
+        // pass in named parameters using a dictionary
+        var params2 = new Dictionary<string, object>
+        {
+            { "First", "Jeremy" },
+            { "Last", "Miller" }
+        };
+        var jeremysAndMillers2 = session
+            .Query<User>("where data ->> 'FirstName' = @First or data ->> 'LastName' = @Last", params2);
 
         #endregion
     }

@@ -44,6 +44,8 @@ public class executing_arbitrary_sql_as_part_of_transaction : OneOffConfiguratio
         theSession.Store(Target.Random());
         var json = "{ \"answer\": 42 }";
         theSession.QueueSqlCommand("insert into data (raw_value) values (?::jsonb)", json);
+        var parameters = new { newName = "Hawx" };
+        theSession.QueueSqlCommand("insert into names (name) values (@newName)", parameters);
         #endregion
 
         await theSession.SaveChangesAsync();
@@ -55,7 +57,7 @@ public class executing_arbitrary_sql_as_part_of_transaction : OneOffConfiguratio
             var names = await conn.CreateCommand("select name from names order by name")
                 .FetchListAsync<string>();
 
-            names.ShouldHaveTheSameElementsAs("Babu", "Jeremy", "Oskar");
+            names.ShouldHaveTheSameElementsAs("Babu", "Hawx", "Jeremy", "Oskar");
         }
     }
 }
