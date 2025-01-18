@@ -69,7 +69,7 @@ public async Task clean_out_database_documents(IHost host)
 
 ## Reset all data
 
-Use `IDocumentStore.Advanced.ResetAllData()` to deletes all current document, event data and then (re)applies the configured initial data.
+Use `IDocumentStore.Advanced.ResetAllData()` to delete all current document and event data, and then (re)apply the configured initial data.
 
 <!-- snippet: sample_reset_all_data -->
 <a id='snippet-sample_reset_all_data'></a>
@@ -81,7 +81,7 @@ await theStore.Advanced.ResetAllData();
 <sup><a href='https://github.com/JasperFx/marten/blob/master/src/DocumentDbTests/SessionMechanics/reset_all_data_usage.cs#L45-L49' title='Snippet source file'>snippet source</a> | <a href='#snippet-sample_reset_all_data' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
-Use `IHost.ResetAllMartenDataAsync()` to delete all current document, event data and then (re)applies the configured initial data from the `IHost` instance.
+Use `IHost.ResetAllMartenDataAsync()` to delete all current document and event data, restart the AsyncDaemon if it us running, and then (re)apply the configured initial data from the `IHost` instance.
 
 <!-- snippet: sample_reset_all_data_ihost -->
 <a id='snippet-sample_reset_all_data_ihost'></a>

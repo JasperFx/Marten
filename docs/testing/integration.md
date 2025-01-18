@@ -100,8 +100,9 @@ public abstract class IntegrationContext : IAsyncLifetime
      
     public async Task InitializeAsync()
     {
-        // Using Marten, wipe out all data and reset the state
-        await Store.Advanced.ResetAllData();
+        // Using Marten, wipe out all data and reset the state.
+        // Also restart the async daemon if in use.
+        await Host.ResetAllMartenDataAsync();
     }
  
     // This is required because of the IAsyncLifetime 
