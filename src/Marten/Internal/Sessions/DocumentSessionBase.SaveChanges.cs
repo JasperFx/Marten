@@ -24,6 +24,8 @@ public abstract partial class DocumentSessionBase
             return;
         }
 
+        foreach (var listener in Listeners) listener.BeforeProcessChanges(this);
+
         try
         {
             Options.EventGraph.ProcessEvents(this);
@@ -72,6 +74,11 @@ public abstract partial class DocumentSessionBase
         if (!_workTracker.HasOutstandingWork())
         {
             return;
+        }
+
+        foreach (var listener in Listeners)
+        {
+            await listener.BeforeProcessChangesAsync(this, token).ConfigureAwait(false);
         }
 
         try
@@ -192,7 +199,6 @@ public abstract partial class DocumentSessionBase
         {
             try
             {
-
                 await executeBeforeCommitListeners(batch).ConfigureAwait(false);
 
                 await Options.ResiliencePipeline.ExecuteAsync(

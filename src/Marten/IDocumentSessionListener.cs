@@ -67,6 +67,22 @@ public interface IDocumentSessionListener
 
     /// <summary>
     ///     Called just after IDocumentSession.SaveChanges() is called, but before
+    ///     any event apply are made
+    /// </summary>
+    /// <param name="session"></param>
+    void BeforeProcessChanges(IDocumentSession session);
+
+    /// <summary>
+    ///     Called just after IDocumentSession.SaveChanges() is called, but before
+    ///     any event apply are made
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    Task BeforeProcessChangesAsync(IDocumentSession session, CancellationToken token);
+
+    /// <summary>
+    ///     Called just after IDocumentSession.SaveChanges() is called, but before
     ///     any database calls are made
     /// </summary>
     /// <param name="session"></param>
@@ -107,6 +123,17 @@ public interface IDocumentSessionListener
 /// </summary>
 public abstract class DocumentSessionListenerBase: IDocumentSessionListener
 {
+    public virtual void BeforeProcessChanges(IDocumentSession session)
+    {
+        // Nothing
+    }
+
+    public virtual Task BeforeProcessChangesAsync(IDocumentSession session, CancellationToken token)
+    {
+        // Nothing
+        return Task.CompletedTask;
+    }
+
     public virtual void BeforeSaveChanges(IDocumentSession session)
     {
         // Nothing
